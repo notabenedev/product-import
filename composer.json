@@ -1,0 +1,31 @@
+{
+    "name": "notabenedev/product-import",
+    "description": "Import categories, products, variations from YML",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "N.Borisova",
+            "email": "n.borisova@me.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "portedcheese/base-settings": "^3.1 | ^4.0",
+        "portedcheese/seo-integration": "^1.4",
+        "portedcheese/admin-site-menu": "^1.6",
+        "portedcheese/category-product": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Notabenedev\\ProductImport\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Notabenedev\\ProductImport\\ProductImportServiceProvider"
+            ]
+        }
+    }
+}
