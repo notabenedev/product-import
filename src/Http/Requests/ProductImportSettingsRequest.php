@@ -55,6 +55,8 @@ class ProductImportSettingsRequest extends FormRequest
             'xml-variation-prices' => 'max:100',
             'xml-variation-price-element' => 'max:100',
             'xml-variation-price' => 'max:100',
+            'xml-code-type' => 'required|min:2|max:100',
+            'xml-code' => 'required|min:2|max:100',
         ];
     }
 }

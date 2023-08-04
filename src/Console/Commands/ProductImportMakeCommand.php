@@ -66,6 +66,10 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         'xml-variation-prices' => 'Цены',
         'xml-variation-price-element' => 'Цена',
         'xml-variation-price' => 'ЦенаЗаЕдиницу',
+
+        'xml-code-type' => 'product-attribute',
+        'xml-code' => 'id',
+
     ];
 
     /**
