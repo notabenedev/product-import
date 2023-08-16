@@ -17,7 +17,8 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $signature = 'make:product-import
                     {--all : Run all}
                     {--config : Make config}    
-                    {--js : Export scripts}';
+                    {--js : Export scripts}
+                    {--models : Export models}';
 
     /**
      * The console command description.
@@ -73,6 +74,12 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     ];
 
     /**
+     * The models to  be exported
+     * @var array
+     */
+    protected $models = ["ImportYml", "YmlFile"];
+
+    /**
      * Scripts.
      *
      * @var array
@@ -100,8 +107,13 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     {
         $all = $this->option("all");
 
+
         if ($this->option("config") || $all) {
             $this->makeConfig();
+        }
+
+        if ($this->option("models") || $all) {
+            $this->exportModels();
         }
 
         if ($this->option("js") || $all) {

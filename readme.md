@@ -10,6 +10,7 @@
                             {--all : Run all}
                             {--config : make config}
                             {--js : export js}
+                            {--models: export models}
 
 ## Update
    

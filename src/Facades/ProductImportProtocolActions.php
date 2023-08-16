@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  *
- * Class ImportProtocolActions
+ * Class ProductImportProtocolActions
  * @package Notabenedev\ProductImport\Facades
  *
  * @method static string init()

@@ -13,7 +13,9 @@ class ProductImportInitCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'init:product-import';
+    protected $signature = 'init:product-import
+    {--form-mode : form-mode import}
+    {--console-mode : console-mode import}';
 
     /**
      * The console command description.
@@ -37,7 +39,12 @@ class ProductImportInitCommand extends Command
      */
     public function handle()
     {
-       ProductImportProtocolActions::init();
+        $mode = "init";
+        if ($this->option("form-mode"))
+            $mode = "form";
+        if ($this->option("console-mode"))
+            $mode = "console";
+       ProductImportProtocolActions::init($mode);
        return 0;
     }
 }

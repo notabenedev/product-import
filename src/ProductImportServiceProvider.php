@@ -40,6 +40,10 @@ class ProductImportServiceProvider extends ServiceProvider
                 ProductImportInitCommand::class,
             ]);
         }
+
+        // Подключение миграции
+        $this->loadMigrationsFrom(__DIR__.'/database/migrations');
+
         // Подключение шаблонов.
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'product-import');
 
@@ -54,6 +58,10 @@ class ProductImportServiceProvider extends ServiceProvider
      */
     protected function initFacades()
     {
+        $this->app->singleton("product-import-auth-actions", function () {
+            $class = config("product-import.productImportAuthActionsFacade");
+            return new $class;
+        });
         $this->app->singleton("product-import-protocol-actions", function () {
             $class = config("product-import.productImportProtocolActionsFacade");
             return new $class;

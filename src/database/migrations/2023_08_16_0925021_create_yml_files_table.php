@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateYmlFilesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('yml_files', function (Blueprint $table) {
+            $table->id();
+
+            $table->unsignedBigInteger("import_yml_id")
+                ->comment("Выгрузка");
+
+            $table->string("type")
+                ->nullable()
+                ->comment("Тип файла");
+
+            $table->string("path")
+                ->nullable()
+                ->comment("Путь к файлу");
+
+            $table->string("original_name")
+                ->comment("Имя фала присланное");
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('yml_files');
+    }
+}
