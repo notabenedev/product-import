@@ -18,7 +18,8 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
                     {--all : Run all}
                     {--config : Make config}    
                     {--js : Export scripts}
-                    {--models : Export models}';
+                    {--models : Export models}
+                    {--controllers : Export controllers}';
 
     /**
      * The console command description.
@@ -80,6 +81,13 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $models = ["ImportYml", "YmlFile"];
 
     /**
+     * Make Controllers
+     */
+    protected $controllers = [
+        "Admin" => ["ImportYmlController"],
+    ];
+
+    /**
      * Scripts.
      *
      * @var array
@@ -114,6 +122,10 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
 
         if ($this->option("models") || $all) {
             $this->exportModels();
+        }
+
+        if ($this->option("controllers") || $all) {
+             $this->exportControllers("Admin");
         }
 
         if ($this->option("js") || $all) {

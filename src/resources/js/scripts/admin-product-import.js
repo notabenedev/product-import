@@ -1,5 +1,7 @@
 (function ($) {
     $(document).ready(function (event) {
+        setFileName();
+
         let categoriesElement = document.getElementById('xmlCategoryParentType');
         let variationsElement = document.getElementById('xmlVariationType');
 
@@ -28,5 +30,22 @@
         firstBlock.style.display = isFirst ? "block" : "none";
         secondBlock.style.display = isSecond ? "block" : "none";
     }
+
+    function setFileName(){
+
+        let fileName = document.getElementById('fileName');
+        let fileInput = document.getElementById('fileInput');
+        let fileSubmit = document.getElementById('fileSubmit');
+        if (fileInput && fileName){
+           fileInput.onchange = function () {
+                if (this.files[0]) // если выбрали файл
+                {
+                    fileName.value = this.files[0].name;
+                    fileSubmit.hidden = false;
+                }
+            };
+        }
+    }
+
 
 })(jQuery);

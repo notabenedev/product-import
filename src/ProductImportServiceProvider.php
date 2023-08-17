@@ -49,12 +49,16 @@ class ProductImportServiceProvider extends ServiceProvider
 
         //Подключаем роуты
         if (config("product-import.importApiRoutes")) {
-            $this->loadRoutesFrom(__DIR__."/routes/product-import.php");
+            $this->loadRoutesFrom(__DIR__."/routes/product-import-api.php");
+        }
+        if (config("product-import.importAdminRoutes")) {
+            $this->loadRoutesFrom(__DIR__."/routes/product-import-admin.php");
         }
 
         // Assets.
         $this->publishes([
             __DIR__ . '/resources/js/scripts' => resource_path('js/vendor/product-import'),
+
         ], 'public');
     }
 
@@ -69,6 +73,11 @@ class ProductImportServiceProvider extends ServiceProvider
         });
         $this->app->singleton("product-import-protocol-actions", function () {
             $class = config("product-import.productImportProtocolActionsFacade");
+            return new $class;
+        });
+
+        $this->app->singleton("product-import-load-file-actions", function () {
+            $class = config("product-import.productImportLoadFileActionsFacade");
             return new $class;
         });
     }

@@ -7,6 +7,7 @@ use App\ImportYml;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use Notabenedev\ProductImport\Facades\ProductImportAuthActions;
+use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
 use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
 
 class ProductImportProtocolActionsManager
@@ -43,23 +44,13 @@ class ProductImportProtocolActionsManager
 
         switch ($this->mode) {
             case "form":
-
                 if ( $check = ProductImportAuthActions::checkAuthUser() !== true)
                     return $check;
-
                 $yml = ImportYml::create([]);
-                return ProductImportProtocolActions::answer($yml->uuid."\n");
-
-            case "console":
-                $yml = ImportYml::create([]);
-                $file = $yml->files()->create(["path" => "import.yml", "original_name" => "import.yml", "type" => "full"]);
-                return ProductImportProtocolActions::answer($yml->uuid."\n".$file->path);
-
-            case "current":
-                $yml = ProductImportAuthActions::getUserCookie();
-                if (is_string($yml)) return $yml;
-                $files = $yml->files();
-                break;
+                $answer = $this->translateAnswer(ProductImportLoadFileActions::modeLoadFile($yml));
+                if ($answer !== "success\n")
+                   return redirect()->back()->with("danger", $answer);
+                return redirect()->back()->with("success", "Файл импорта загружен!");
 
             case "checkauth":
                 $check =  ProductImportAuthActions::checkAuthUser();
@@ -89,8 +80,7 @@ class ProductImportProtocolActionsManager
             case "file":
                 $yml = ProductImportAuthActions::getUserCookie();
                 if (is_string($yml)) return $yml;
-
-                break;
+                return ProductImportLoadFileActions::modeLoadFile($yml);
 
             case "import":
                 $yml = ProductImportAuthActions::getUserCookie();
@@ -111,6 +101,15 @@ class ProductImportProtocolActionsManager
     public function answer(string $value)
     {
         return iconv("UTF-8", "windows-1251", $value);
+    }
+
+    /**
+     *
+     * @param string $value
+     * @return array|false|string|string[]
+     */
+    public function translateAnswer(string $value){
+        return  iconv( "windows-1251", "UTF-8", strip_tags($value));
     }
 
     /**

@@ -11,6 +11,7 @@
                             {--config : make config}
                             {--js : export js}
                             {--models: export models}
+                            {--controllers: export controllers}
 
 ## Update
    
