@@ -44,7 +44,7 @@ class ProductImportInitCommand extends Command
             $mode = "form";
         if ($this->option("console-mode"))
             $mode = "console";
-       ProductImportProtocolActions::init($mode);
+       ProductImportProtocolActions::manualInit($mode);
        return 0;
     }
 }

@@ -36,9 +36,9 @@ class ProductImportAuthActionsManager
 
     /**
      *
-     * @return bool|string
+     * @return bool
      */
-    public function checkAuthUser()
+    public function checkAuthUser(): bool
     {
         if (! $this->checkRequestUser()) return ProductImportProtocolActions::failure("Wrong user data");
         $user = Auth::user();
@@ -50,23 +50,6 @@ class ProductImportAuthActionsManager
         return true;
     }
 
-    /**
-     * Установить куку
-     *
-     * @param $value
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response
-     */
-    public function setUserCookie($value)
-    {
-        if (! request()->cookie(self::COOKIE_NAME, false)) {
-            $minutes = 3*60;
-            $cookie = cookie(self::COOKIE_NAME, $value, $minutes);
-            return response()->cookie($cookie);
-        }
-        else {
-            return ProductImportProtocolActions::failure("Cookie  not set");
-        }
-    }
 
     /**
      * Получить куку.

@@ -47,6 +47,11 @@ class ProductImportServiceProvider extends ServiceProvider
         // Подключение шаблонов.
         $this->loadViewsFrom(__DIR__ . '/resources/views', 'product-import');
 
+        //Подключаем роуты
+        if (config("product-import.importApiRoutes")) {
+            $this->loadRoutesFrom(__DIR__."/routes/product-import.php");
+        }
+
         // Assets.
         $this->publishes([
             __DIR__ . '/resources/js/scripts' => resource_path('js/vendor/product-import'),

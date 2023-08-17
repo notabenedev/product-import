@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Facade;
  * @package Notabenedev\ProductImport\Facades
  *
  * @method static string init()
+ * @method static string manualInit($mode)
  */
 class ProductImportProtocolActions extends Facade
 {

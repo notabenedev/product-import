@@ -2,7 +2,7 @@
 - импорт категорий, товаров и (если есть) цен из YML файла импорта
 
 ## Config
-    php artisan vendor:publish --provider="Notabenedev\ProductImport\ProductImportServiceProvider" --tag=config
+    php artisan vendor:publish --provider="Notabenedev\ProductImport\ProductImportServiceProvider" --tag=config --force
 
 ## Install
      -   php artisan vendor:publish --provider="Notabenedev\ProductImport\ProductImportServiceProvider" --tag=public --force

@@ -19,29 +19,41 @@ class ProductImportProtocolActionsManager
         $this->mode = request()->get("mode", false);
     }
 
-    public function init($manualMode = false){
-
+    /**
+     * Init manual
+     *
+     * @param $manualMode
+     * @return void
+     */
+    public function manualInit($manualMode = false){
         if ($manualMode) {
             $this->mode = $manualMode;
             $this->type  = "manual";
         }
+        return $this->init();
+    }
+
+    /**
+     * Init import
+     * @return bool|string|void
+     */
+    public function init(){
 
         if (! $this->type || ! $this->mode) return $this->failure("Not enough params");
 
         switch ($this->mode) {
             case "form":
 
-                if ($check = is_string(ProductImportAuthActions::checkAuthUser())) return $check;
+                if ( $check = ProductImportAuthActions::checkAuthUser() !== true)
+                    return $check;
 
                 $yml = ImportYml::create([]);
-                ProductImportAuthActions::setUserCookie($yml->uuid);
-
-                break;
+                return ProductImportProtocolActions::answer($yml->uuid."\n");
 
             case "console":
                 $yml = ImportYml::create([]);
                 $file = $yml->files()->create(["path" => "import.yml", "original_name" => "import.yml", "type" => "full"]);
-                break;
+                return ProductImportProtocolActions::answer($yml->uuid."\n".$file->path);
 
             case "current":
                 $yml = ProductImportAuthActions::getUserCookie();
@@ -50,7 +62,9 @@ class ProductImportProtocolActionsManager
                 break;
 
             case "checkauth":
-                if ($check = is_string(ProductImportAuthActions::checkAuthUser())) return $check;
+                $check =  ProductImportAuthActions::checkAuthUser();
+                if ($check !== true)
+                    return $check;
 
                 $yml = ImportYml::create([]);
                 /**
@@ -64,6 +78,9 @@ class ProductImportProtocolActionsManager
                 return ProductImportProtocolActions::answer(implode("\n", $answer));
 
             case "init":
+
+                $yml = ProductImportAuthActions::getUserCookie();
+                if (is_string($yml)) return $yml;
                 return $this->answer(implode("\n", [
                     "zip=no",
                     "file_limit=95000000"
@@ -80,6 +97,7 @@ class ProductImportProtocolActionsManager
                 if (is_string($yml)) return $yml;
                 break;
         }
+        return $this->failure("Undefined mode");
     }
 
 
