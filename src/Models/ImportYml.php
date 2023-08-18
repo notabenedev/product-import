@@ -74,4 +74,14 @@ class ImportYml extends Model
         return $this->hasMany(YmlFile::class)->where("type", "offers");
     }
 
+    /**
+     * Полные выгрузки.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function catalog()
+    {
+        return $this->hasMany(YmlFile::class)->where("type", "catalog");
+    }
+
 }

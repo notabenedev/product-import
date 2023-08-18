@@ -3,13 +3,12 @@
 namespace Notabenedev\ProductImport\Http\Controllers\Admin;
 
 
-use App\CmlFile;
-use App\Facades\ExchangeParser;
 use App\Http\Controllers\Controller;
 use App\ImportYml;
+use App\Jobs\Vendor\ProductImport\ProcessYmlFile;
 use App\YmlFile;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Notabenedev\ProductImport\Facades\ProductImportParserActions;
 use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
 
 class ImportYmlController extends Controller
@@ -48,23 +47,13 @@ class ImportYmlController extends Controller
      */
     public function destroy(ImportYml $yml)
     {
-        //if (ProductImportParserActions::getJobsCount())
-            //return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
+        if (ProductImportParserActions::getJobsCount())
+            return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
         $yml->delete();
         //после удаления отправляем на index
         return redirect()->route("admin.ymls.index")->with("success", "Файл выгрузки удален");
     }
 
-
-    /**
-     * Загрузка
-     *
-
-     */
-    public function load()
-    {
-        ProductImportProtocolActions::manualInit("form");
-    }
 
     /**
      * Запускаем очередь
@@ -74,11 +63,16 @@ class ImportYmlController extends Controller
      */
     public function run(YmlFile $file)
     {
-        //if (ProductImportParserActions::getJobsCount())
-        //    return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
+        if (ProductImportParserActions::getJobsCount())
+            return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
 
-        //ProductImportParserActions::parseFile($file);
-        //return redirect()->back()->with("success", "Файл выгрузки помещен в очередь");
+        if (! $file->started_at) {
+            $file->started_at = now();
+            $file->save();
+        }
+
+        ProductImportParserActions::parseFile($file);
+        return redirect()->back()->with("success", "Файл выгрузки помещен в очередь");
 
     }
 

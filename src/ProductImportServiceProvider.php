@@ -75,9 +75,12 @@ class ProductImportServiceProvider extends ServiceProvider
             $class = config("product-import.productImportProtocolActionsFacade");
             return new $class;
         });
-
         $this->app->singleton("product-import-load-file-actions", function () {
             $class = config("product-import.productImportLoadFileActionsFacade");
+            return new $class;
+        });
+        $this->app->singleton("product-import-parser-actions", function () {
+            $class = config("product-import.productImportParserActionsFacade");
             return new $class;
         });
     }

@@ -1,0 +1,10 @@
+<?php
+
+namespace {{namespace}}Jobs\Vendor\{{pkgName}};
+
+use {{vndName}}\{{pkgName}}\Jobs\{{name}} as VendorJobs;
+
+class {{name}} extends VendorJobs
+{
+
+}

@@ -33,7 +33,10 @@
                             <td>
                                 <div role="toolbar" class="btn-toolbar">
                                     <div class="btn-group mr-1">
-                                        <button type="button" class="btn btn-warning" data-confirm="{{ "run-form-{$item->id}" }}">
+                                        <button type="button" class="btn btn-warning"
+                                                {{  $item->started_at ? "disabled" : "" }}
+                                                data-confirm="{{ "run-form-{$item->id}" }}"
+                                                title="{{ $item->started_at }}">
                                             <i class="fas fa-play"></i>
                                         </button>
                                     </div>

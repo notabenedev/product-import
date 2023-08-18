@@ -19,7 +19,8 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
                     {--config : Make config}    
                     {--js : Export scripts}
                     {--models : Export models}
-                    {--controllers : Export controllers}';
+                    {--controllers : Export controllers}
+                    {--jobs : Export jobs}';
 
     /**
      * The console command description.
@@ -88,6 +89,15 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     ];
 
     /**
+     * Make Jobs
+     */
+
+    protected $jobs = [
+        "ProcessYmlFile",
+
+    ];
+
+    /**
      * Scripts.
      *
      * @var array
@@ -128,9 +138,59 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
              $this->exportControllers("Admin");
         }
 
+        if ($this->option("jobs") || $all) {
+            $this->exportJobs();
+        }
+
         if ($this->option("js") || $all) {
             $this->makeJsIncludes("admin");
         }
 
+    }
+
+    protected function exportJobs()
+    {
+        if (empty($this->jobs)) {
+            $this->info("jobs not found");
+            return;
+        }
+        foreach ($this->jobs as $job) {
+            if (file_exists(app_path("Jobs/Vendor/{$this->packageName}/{$job}.php"))) {
+                if (! $this->confirm("The [$job.php] job already exists. Do you want to replace it?")) {
+                    continue;
+                }
+            }
+
+            if (! is_dir($directory = app_path("Jobs/Vendor/{$this->packageName}"))) {
+                mkdir($directory, 0755, true);
+            }
+
+            try {
+                file_put_contents(
+                    app_path("Jobs/Vendor/{$this->packageName}/{$job}.php"),
+                    $this->compileJobStub($job)
+                );
+
+                $this->info("[$job.php] created");
+            }
+            catch (\Exception $e) {
+                $this->error("Failed put job");
+            }
+        }
+    }
+
+    /**
+     * Compile Job file
+     *
+     * @param $job
+     * @return array|false|string|string[]
+     */
+    protected function compileJobStub($job)
+    {
+        return str_replace(
+            ['{{vndName}}','{{namespace}}', '{{pkgName}}', "{{name}}"],
+            [$this->vendorName, $this->getAppNamespace(), $this->packageName, $job],
+            file_get_contents(__DIR__ . "/stubs/jobs/StubJob.stub")
+        );
     }
 }

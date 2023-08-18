@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Support\Facades\Auth;
 use Notabenedev\ProductImport\Facades\ProductImportAuthActions;
 use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
+use Notabenedev\ProductImport\Facades\ProductImportParserActions;
 use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
 
 class ProductImportProtocolActionsManager
@@ -47,7 +48,7 @@ class ProductImportProtocolActionsManager
                 if ( $check = ProductImportAuthActions::checkAuthUser() !== true)
                     return $check;
                 $yml = ImportYml::create([]);
-                $answer = $this->translateAnswer(ProductImportLoadFileActions::modeLoadFile($yml));
+                $answer = $this->translateAnswer(ProductImportLoadFileActions::modeLoadFile($yml, true));
                 if ($answer !== "success\n")
                    return redirect()->back()->with("danger", $answer);
                 return redirect()->back()->with("success", "Файл импорта загружен!");
@@ -85,7 +86,7 @@ class ProductImportProtocolActionsManager
             case "import":
                 $yml = ProductImportAuthActions::getUserCookie();
                 if (is_string($yml)) return $yml;
-                break;
+                return ProductImportParserActions::initParseFile($yml);
         }
         return $this->failure("Undefined mode");
     }

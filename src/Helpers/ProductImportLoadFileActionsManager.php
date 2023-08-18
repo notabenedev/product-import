@@ -4,6 +4,7 @@ namespace Notabenedev\ProductImport\Helpers;
 
 
 use App\ImportYml;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
@@ -43,7 +44,7 @@ class ProductImportLoadFileActionsManager
      * @param ImportYml $yml
      * @return string
      */
-    public function modeLoadFile(ImportYml $yml)
+    public function modeLoadFile(ImportYml $yml, $isForm = false)
     {
         $this->originalFileName = request()->get("filename", false);
         if (! $this->originalFileName) {
@@ -55,7 +56,7 @@ class ProductImportLoadFileActionsManager
         $this->getFileType($name);
         if ($this->type === "undefined") {
             $yml->delete();
-            return ProductImportProtocolActions::failure("Undefined file name");
+            return ProductImportProtocolActions::failure("Undefined file name: use catalog | import | offers filename");
         }
 
         $this->getFileExt($name);
@@ -75,7 +76,8 @@ class ProductImportLoadFileActionsManager
         }
 
         try {
-            $newFilePath = $this->storeFile($fileData);
+            $newFilePath = $this->storeFile($fileData, $isForm);
+
             YmlFile::create([
                 "import_yml_id" => $yml->id,
                 "path" => $newFilePath,
@@ -156,11 +158,17 @@ class ProductImportLoadFileActionsManager
      * @param $data
      * @return string
      */
-    protected function storeFile($data)
+    protected function storeFile($data, $isForm = false)
     {
         $fileName = Str::random(40) . ".".$this->originalFileExt;
         $filePath = self::FOLDER . "/" . $fileName;
-        Storage::disk("public")->put($filePath, $data);
+
+        if ($isForm){
+           $data->storeAs(self::FOLDER . "/" , "$fileName");
+        }
+        else
+            Storage::disk("public")->put($filePath, $data);
+
         return $filePath;
     }
 }
