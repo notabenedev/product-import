@@ -2,14 +2,17 @@
 
 namespace Notabenedev\ProductImport\Helpers;
 
+use App\Category;
 use App\ImportYml;
+use App\Jobs\Vendor\ProductImport\ProcessCategoryParent;
 use App\YmlFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+
 use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
 use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
 use App\Jobs\Vendor\ProductImport\ProcessYmlFile;
-use Zenwalker\CommerceML\CommerceML;
+use App\Jobs\Vendor\ProductImport\ProcessCategory;
 
 class ProductImportParserActionsManager
 {
@@ -20,10 +23,7 @@ class ProductImportParserActionsManager
     const PRODUCT_JOB = "processProduct";
     const OFFER_JOB = "processOffer";
 
-    /**
-     * @var null|CommerceML
-     */
-    protected $ymlParser;
+    protected null|\SimpleXMLElement $ymlParser;
     protected $import;
     protected $offers;
     protected $props;
@@ -43,16 +43,13 @@ class ProductImportParserActionsManager
      */
     public function parseFile(YmlFile $file)
     {
-        $this->ymlParser = new CommerceML();
         $path = Storage::disk("public")->path($file->path);
-        $this->ymlParser->loadImportXml($path);
+
+        $this->ymlParser = simplexml_load_string(file_get_contents($path));
+
         switch ($file->type) {
-            case "catalog":
-                //$this->prepareCatalog();
-                break;
-            case "import":
-                //$this->prepareImport();
-                break;
+            case "catalog":  case "import":
+                $this->prepareImport();
 
             case "offers":
                 //$this->prepareOffers();
@@ -147,6 +144,89 @@ class ProductImportParserActionsManager
         ];
     }
 
+    /**
+     * Обработка импорта.
+     */
+    protected function prepareImport()
+    {
+        if (empty($this->ymlParser->{siteconf()->get("product-import","xml-root")}))
+             return;
+        else
+            $this->import = $this->ymlParser->{siteconf()->get("product-import","xml-root")};
 
+        $this->initUpdateCategories();
+    }
 
+    /**
+     * Проверить структуру категорий.
+     */
+    protected function initUpdateCategories()
+    {
+
+        if ((siteconf()->get("product-import","xml-categories-root-add") && siteconf()->get("product-import","xml-categories-root-add") !== "")){
+            $importPath = $this->import
+                ->{siteconf()->get("product-import","xml-categories-root")}[0]
+                ->{siteconf()->get("product-import","xml-categories-root-add")}[0];
+        }
+        else {
+            $importPath = $this->import
+                    ->{siteconf()->get("product-import", "xml-categories-root")}[0];
+        }
+        if ($importPath)
+            $groups = $importPath->children();
+        else
+            return ProductImportProtocolActions::failure("Structure not found");
+
+        $this->addCategoriesToQueue(true,$groups);
+    }
+
+    /**
+     * Добавить категории в очередь на обновление.
+     *
+     * @param \SimpleXMLElement $groups
+     * @param null $parent
+     */
+    protected function addCategoriesToQueue($isTree, \SimpleXMLElement $groups, $parent = null)
+    {
+        $priority = 0;
+        if (! $isTree) {
+            foreach ($groups as $group){
+                ProcessCategory::dispatch($group->asXML(), $parent, $priority++)->onQueue(self::CATEGORY_JOB);
+            }
+        }
+        else {
+            foreach ($groups as $group) {
+                ProcessCategory::dispatch($group->asXML(), $parent, $priority++)->onQueue(self::CATEGORY_JOB);
+                if (empty($group[0]->{siteconf()->get("product-import","xml-categories-root")}[0]))
+                    continue;
+                if (siteconf()->get("product-import", "xml-category-id-type") == "element"){
+                    $current = ! empty($group[0]->{siteconf()->get("product-import","xml-category-id")}) ?
+                        $group[0]->{siteconf()->get("product-import","xml-category-id")}->__toString()
+                        : null;
+                    $children = $group[0]
+                        ->{siteconf()->get("product-import","xml-categories-root")}[0]
+                        ->children();
+                    $this->addCategoriesToQueue($isTree, $children, $current);
+                }
+            }
+        }
+    }
+
+    /**
+     * Найти категорию по  внешнему uuid.
+     *
+     * @param string $uuid
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|Category|null
+     */
+    public function findCategoryByUUid(string $uuid)
+    {
+        try {
+            return Category::query()
+                ->where("import_uuid", $uuid)
+                ->firstOrFail();
+        }
+        catch (\Exception $exception) {
+            return null;
+        }
+    }
 }

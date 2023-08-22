@@ -11,6 +11,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
+        "ext-simplexml": "*",
+        "ext-libxml": "*",
         "portedcheese/base-settings": "@dev",
         "portedcheese/seo-integration": "@dev",
         "portedcheese/admin-site-menu": "@dev",

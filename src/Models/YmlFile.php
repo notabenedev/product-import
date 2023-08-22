@@ -52,4 +52,15 @@ class YmlFile extends Model
     {
         return datehelper()->changeTz($value);
     }
+
+    /**
+     * Изменить дату запуска.
+     *
+     * @param $value
+     * @return string
+     */
+    public function getStartedAtAttribute($value)
+    {
+        return datehelper()->changeTz($value);
+    }
 }

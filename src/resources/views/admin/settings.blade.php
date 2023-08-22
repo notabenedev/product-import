@@ -34,6 +34,18 @@
                 </div>
                 @enderror
 
+                <label class="text-secondary my-2" for="xmlCategoriesRoot">Корневой xml элемент Категорий (Дополнительный)</label>
+                <input type="text"
+                       id="xmlCategoriesRootAdd"
+                       name="data-xml-categories-root-add"
+                       value="{{ old("xml-categories-root-add", base_config()->get($name, "xml-categories-root-add", "")) }}"
+                       class="form-control @error("xml-categories-root-add") is-invalid @enderror">
+                @error("xml-categories-root-add")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
                 <label class="text-secondary my-2" for="xmlCategory">xml элемент Категории</label>
                 <input type="text"
                        id="xmlCategory"
