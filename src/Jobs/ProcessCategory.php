@@ -21,6 +21,7 @@ class ProcessCategory implements ShouldQueue
     protected string|null $parent;
     protected int $priority;
     protected string $picture;
+    protected int|null $ymlFileId;
 
     /**
      * Create a new job instance.
@@ -29,12 +30,14 @@ class ProcessCategory implements ShouldQueue
      * @param $group
      * @param string|null $parent
      * @param int $priority
+     * @param int|null $ymlFileId
      */
-    public function __construct( $group, $parent = null, $priority = 0)
+    public function __construct( $group, $parent = null, $priority = 0,  $ymlFileId = null)
     {
         $this->group = $group;
         $this->parent = $parent;
         $this->priority = $priority;
+        $this->ymlFileId = $ymlFileId;
     }
 
     /**
@@ -64,6 +67,7 @@ class ProcessCategory implements ShouldQueue
                 "title" => ! empty($title) ? $title->__toString() : null,
                 "parent" => ! empty($this->parent) ? $this->parent: null,
                 "priority" => $this->priority,
+                "ymlFileId" => $this->ymlFileId,
             ];
         } elseif (siteconf()->get("product-import", "xml-category-parent-type") == "element-tree")
         {
@@ -76,6 +80,7 @@ class ProcessCategory implements ShouldQueue
                 "parent" => ! empty($this->parent) ? $this->parent: null,
                 //"picture" => ! empty($this->picture) ? $this->picture: null,
                 "priority" => $this->priority,
+                "ymlFileId" => $this->ymlFileId,
             ];
         }
 
@@ -104,12 +109,14 @@ class ProcessCategory implements ShouldQueue
             $model->priority = $this->category->priority;
             $model->import_uuid = $this->category->id;
             $model->import_parent = $this->category->parent;
+            $model->yml_file_id = $this->ymlFileId;
             $model->save();
         }
         else {
             $model->title = $this->category->title;
             $model->priority = $this->category->priority;
             $model->import_parent = $this->category->parent;
+            $model->yml_file_id = $this->ymlFileId;
             $model->save();
         }
         return $model;

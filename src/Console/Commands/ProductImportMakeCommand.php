@@ -37,6 +37,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $configValues = [
         'xml-root' => 'yml_catalog',
 
+        'xml-category-import-type' => 'modify',
         'xml-categories-root' => 'categories',
         'xml-categories-root-add' => '',
         'xml-category' => 'category',
@@ -95,8 +96,8 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $jobs = [
         "ProcessYmlFile",
         "ProcessCategory",
-        "ProcessCategoryParent"
-
+        "ProcessCategoryParent",
+        "ProcessOtherCategory"
     ];
 
     /**

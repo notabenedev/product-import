@@ -5,8 +5,10 @@ namespace Notabenedev\ProductImport\Helpers;
 use App\Category;
 use App\ImportYml;
 use App\Jobs\Vendor\ProductImport\ProcessCategoryParent;
+use App\Jobs\Vendor\ProductImport\ProcessOtherCategory;
 use App\YmlFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
@@ -22,14 +24,17 @@ class ProductImportParserActionsManager
 
     const PRODUCT_JOB = "processProduct";
     const OFFER_JOB = "processOffer";
+    const OTHER_CATEGORY_JOB = "processOtherCategory";
 
     protected null|\SimpleXMLElement $ymlParser;
+    protected null|int $ymlFileId;
     protected $import;
     protected $offers;
     protected $props;
 
     public function __construct()
     {
+        $this->ymlFileId = null;
         $this->ymlParser = null;
         $this->import = null;
         $this->offers = null;
@@ -45,11 +50,13 @@ class ProductImportParserActionsManager
     {
         $path = Storage::disk("public")->path($file->path);
 
+        $this->ymlFileId = $file->id;
         $this->ymlParser = simplexml_load_string(file_get_contents($path));
 
         switch ($file->type) {
             case "catalog":  case "import":
                 $this->prepareImport();
+                $this->otherCategories($file);
 
             case "offers":
                 //$this->prepareOffers();
@@ -141,6 +148,7 @@ class ProductImportParserActionsManager
             self::CATEGORY_PARENT_JOB,
             self::PRODUCT_JOB,
             self::OFFER_JOB,
+            self::OTHER_CATEGORY_JOB
         ];
     }
 
@@ -191,12 +199,13 @@ class ProductImportParserActionsManager
         $priority = 0;
         if (! $isTree) {
             foreach ($groups as $group){
-                ProcessCategory::dispatch($group->asXML(), $parent, $priority++)->onQueue(self::CATEGORY_JOB);
+                ProcessCategory::dispatch($group->asXML(), $parent, $priority++, $this->ymlFileId)->onQueue(self::CATEGORY_JOB);
             }
         }
         else {
             foreach ($groups as $group) {
-                ProcessCategory::dispatch($group->asXML(), $parent, $priority++)->onQueue(self::CATEGORY_JOB);
+                ProcessCategory::dispatch($group->asXML(), $parent, $priority++, $this->ymlFileId)->onQueue(self::CATEGORY_JOB);
+
                 if (empty($group[0]->{siteconf()->get("product-import","xml-categories-root")}[0]))
                     continue;
                 if (siteconf()->get("product-import", "xml-category-id-type") == "element"){
@@ -227,6 +236,28 @@ class ProductImportParserActionsManager
         }
         catch (\Exception $exception) {
             return null;
+        }
+    }
+
+    /**
+     * Обработка импорта.
+     */
+    protected function otherCategories(YmlFile $file)
+    {
+        if(siteconf()->get("product-import","xml-category-import-type") === "modify") return;
+
+        $ymlStartedAt = $file->started_at;
+
+        if (! empty($ymlStartedAt)) {
+
+            $otherCategories = Category::query()
+                ->where('yml_file_id', "<", $file->id)
+                ->orWhereNull('yml_file_id')
+                ->get();
+
+            foreach ($otherCategories as $other){
+                ProcessOtherCategory::dispatch($other)->onQueue(self::OTHER_CATEGORY_JOB);
+            }
         }
     }
 }
