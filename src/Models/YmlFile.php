@@ -2,6 +2,7 @@
 
 namespace Notabenedev\ProductImport\Models;
 
+use App\Category;
 use App\ImportYml;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,9 +38,24 @@ class YmlFile extends Model
         });
     }
 
+    /**
+     * Выгрузка
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function yml()
     {
         return $this->belongsTo(ImportYml::class);
+    }
+
+    /**
+     * Categories imported by file
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
     }
 
     /**

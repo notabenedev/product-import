@@ -17,6 +17,21 @@
 </div>
 
 <div class="form-group">
+    <label class="text-secondary my-2" for="xmlPictureImportType">Тип изображений</label>
+    <select type="text"
+            id="xmlPictureImportType"
+            name="data-xml-picture-import-type"
+            class="form-control @error("xml-picture-import-type") is-invalid @enderror">
+        <option value="base64" {{ old("xml-picture-import-type", base_config()->get($name, "xml-picture-import-type", "base64")) == "base64" ? " selected" : "" }}>
+            Кодировка base64
+        </option>
+        <option value="href" {{ old("xml-picture-import-type", base_config()->get($name, "xml-picture-import-type", "href")) == "href" ? " selected" : "" }}>
+            Гиперссылка на изображение
+        </option>
+    </select>
+</div>
+
+<div class="form-group">
     <div class="form-row">
         <div class="col-12 col-sm-6 col-lg-4">
             <h4>Категории</h4>
@@ -30,7 +45,7 @@
 {{--                    <option value="full" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "full" ? " selected" : "" }}>--}}
 {{--                        Полная выгрузка: !!! удаление всех отстутствующих категорий, товаров, цен, заказов !!!--}}
 {{--                    </option>--}}
-                    <option value="modify" {{ old("xml-category-id-type", base_config()->get($name, "xml-category-import-type", "modify")) == "modify" ? " selected" : "" }}>
+                    <option value="modify" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "modify" ? " selected" : "" }}>
                         Только изменения (изменение переданных категорий)
                     </option>
                 </select>
@@ -164,9 +179,21 @@
                         <input type="text"
                                id="xmlCategoryElementTreePicture"
                                name="data-xml-category-element-tree-picture"
-                               value="{{ old("xml-category-element-tree-picture", base_config()->get($name, "xml-category-element-tree-picture", "product-import")) }}"
+                               value="{{ old("xml-category-element-tree-picture", base_config()->get($name, "xml-category-element-tree-picture", "")) }}"
                                class="form-control @error("xml-category-element-tree-picture") is-invalid @enderror">
                         @error("xml-category-element-tree-picture")
+                        <div class="invalid-feedback" role="alert">
+                            {{ $message }}
+                        </div>
+                        @enderror
+
+                        <label class="text-secondary my-2" for="xmlCategoryElementTreePictureAdd">xml элемент Картинка Категории (Дополнительный)</label>
+                        <input type="text"
+                               id="xmlCategoryElementTreePictureAdd"
+                               name="data-xml-category-element-tree-picture-add"
+                               value="{{ old("xml-category-element-tree-picture-add", base_config()->get($name, "xml-category-element-tree-picture-add", "")) }}"
+                               class="form-control @error("xml-category-element-tree-picture-add") is-invalid @enderror">
+                        @error("xml-category-element-tree-picture-add")
                         <div class="invalid-feedback" role="alert">
                             {{ $message }}
                         </div>

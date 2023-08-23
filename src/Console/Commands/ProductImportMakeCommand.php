@@ -37,6 +37,8 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $configValues = [
         'xml-root' => 'yml_catalog',
 
+        'xml-picture-import-type' => 'base64',
+
         'xml-category-import-type' => 'modify',
         'xml-categories-root' => 'categories',
         'xml-categories-root-add' => '',
@@ -48,6 +50,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         'xml-category-parent-attribute' => 'parentId',
         'xml-category-element-tree-name' => '',
         'xml-category-element-tree-picture' => '',
+        'xml-category-element-tree-picture-add' => '',
 
         'xml-products-root' => 'offers',
         'xml-product' => 'offer',

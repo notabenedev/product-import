@@ -73,12 +73,30 @@ class ProcessCategory implements ShouldQueue
         {
             $id = $category[0]->{siteconf()->get("product-import","xml-category-id")};
             $title = $category[0]->{siteconf()->get("product-import","xml-category-element-tree-name")};
-            $picture = $category[0]->{siteconf()->get("product-import","xml-category-element-tree-picture")};
+            if (! siteconf()->get("product-import","xml-category-element-tree-picture-add")){
+                try {
+                    $picture = $category[0]
+                        ->{siteconf()->get("product-import","xml-category-element-tree-picture")};
+                }
+                catch (\Exception $e){
+                    $picture = null;
+                }
+            }
+            else
+                try {
+                    $picture = $category[0]
+                        ->{siteconf()->get("product-import","xml-category-element-tree-picture")}[0]
+                        ->{siteconf()->get("product-import","xml-category-element-tree-picture-add")};
+                }
+                catch (\Exception $e){
+                    $picture = null;
+                }
+
             $this->category = (object) [
                 "id" => ! empty($id) ? $id->__toString() : null,
                 "title" => ! empty($title) ? $title->__toString() : null,
                 "parent" => ! empty($this->parent) ? $this->parent: null,
-                //"picture" => ! empty($this->picture) ? $this->picture: null,
+                "picture" => ! empty($picture) ? $picture->__toString(): null,
                 "priority" => $this->priority,
                 "ymlFileId" => $this->ymlFileId,
             ];
@@ -110,6 +128,11 @@ class ProcessCategory implements ShouldQueue
             $model->import_uuid = $this->category->id;
             $model->import_parent = $this->category->parent;
             $model->yml_file_id = $this->ymlFileId;
+
+            if ($this->category->picture)
+                if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
+                    $model->uploadBase64Image($this->category->picture, "categories");
+                }
             $model->save();
         }
         else {
@@ -117,6 +140,10 @@ class ProcessCategory implements ShouldQueue
             $model->priority = $this->category->priority;
             $model->import_parent = $this->category->parent;
             $model->yml_file_id = $this->ymlFileId;
+            if($this->category->picture)
+                if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
+                    $model->uploadBase64Image($this->category->picture, "categories");
+                }
             $model->save();
         }
         return $model;
