@@ -121,31 +121,21 @@ class ProcessCategory implements ShouldQueue
 
         if (empty($model)) {
             $model = Category::create(["title" => $this->category->title]);
-            /**
-             * @var Category $model
-             */
-            $model->priority = $this->category->priority;
-            $model->import_uuid = $this->category->id;
-            $model->import_parent = $this->category->parent;
-            $model->yml_file_id = $this->ymlFileId;
-
-            if ($this->category->picture)
-                if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
-                    $model->uploadBase64Image($this->category->picture, "categories");
-                }
-            $model->save();
         }
         else {
             $model->title = $this->category->title;
-            $model->priority = $this->category->priority;
-            $model->import_parent = $this->category->parent;
-            $model->yml_file_id = $this->ymlFileId;
-            if($this->category->picture)
-                if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
-                    $model->uploadBase64Image($this->category->picture, "categories");
-                }
-            $model->save();
         }
+
+        $model->import_uuid = $this->category->id;
+        $model->import_parent = $this->category->parent;
+        $model->yml_file_id = $this->ymlFileId;
+        if($this->category->picture)
+            if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
+                $model->uploadBase64Image($this->category->picture, "categories");
+            }else {
+                $model->uploadUrlImage($this->category->picture, "categories");
+            }
+        $model->save();
         return $model;
     }
 }
