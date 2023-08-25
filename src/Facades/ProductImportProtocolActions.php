@@ -3,14 +3,20 @@
 namespace Notabenedev\ProductImport\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Notabenedev\ProductImport\Helpers\ProductImportProtocolActionsManager;
 
 /**
  *
  * Class ProductImportProtocolActions
  * @package Notabenedev\ProductImport\Facades
  *
- * @method static string init()
- * @method static string manualInit($mode)
+ * @method void manualInit($manualMode = false)
+ * @method string init()
+ * @method bool|false|string answer(string $value)
+ * @method bool|false|string translateAnswer(string $value)
+ * @method bool|false|string failure(string $details = "")
+ *
+ * @see ProductImportProtocolActionsManager
  */
 class ProductImportProtocolActions extends Facade
 {

@@ -66,14 +66,36 @@ class ImportYmlController extends Controller
         if (ProductImportParserActions::getJobsCount())
             return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
 
-        if (! $file->started_at) {
-            $file->started_at = now();
-            $file->save();
-        }
+        $file->started_at = now();
+        $file->save();
 
         ProductImportParserActions::parseFile($file);
         return redirect()->back()->with("success", "Файл выгрузки помещен в очередь");
 
     }
 
+    /**
+     * Скрыть категории и товары вне выгрузки
+     *
+     * @param YmlFile $file
+     * @return RedirectResponse
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function other(YmlFile $file)
+    {
+        if (siteconf()->get("product-import", "xml-category-import-type") == "full"){
+            if (ProductImportParserActions::getJobsCount())
+                return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
+
+            $file->full_import_at = now();
+            $file->save();
+
+            ProductImportParserActions::otherCategories($file->id);
+            return redirect()->back()->with("success", "Очередь на скрытие отстутвующих сущностей запущена");
+        }
+        else{
+            return redirect()->back()->with("danger", "Настройки импорта не предусматривают полную выгрузку категорий");
+        }
+    }
 }

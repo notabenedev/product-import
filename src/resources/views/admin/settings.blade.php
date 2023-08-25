@@ -42,9 +42,9 @@
                         id="xmlCategoryImportType"
                         name="data-xml-category-import-type"
                         class="form-control @error("xml-category-import-type") is-invalid @enderror">
-{{--                    <option value="full" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "full" ? " selected" : "" }}>--}}
-{{--                        Полная выгрузка: !!! удаление всех отстутствующих категорий, товаров, цен, заказов !!!--}}
-{{--                    </option>--}}
+                    <option value="full" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "full" ? " selected" : "" }}>
+                        Полная выгрузка: !!! удаление всех отстутствующих категорий, товаров, цен, заказов !!!
+                    </option>
                     <option value="modify" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "modify" ? " selected" : "" }}>
                         Только изменения (изменение переданных категорий)
                     </option>

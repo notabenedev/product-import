@@ -20,7 +20,7 @@
                     <tr>
                         <th>Имя файла</th>
                         <th>Тип</th>
-                        <th>Дата выгрузки</th>
+                        <th>Дата загрузки</th>
                         <th>Действия</th>
                     </tr>
                     </thead>
@@ -34,10 +34,16 @@
                                 <div role="toolbar" class="btn-toolbar">
                                     <div class="btn-group mr-1">
                                         <button type="button" class="btn btn-warning"
-                                                {{  $item->started_at ? "disabled" : "" }}
+{{--                                                {{  $item->started_at ? "disabled" : "" }}--}}
                                                 data-confirm="{{ "run-form-{$item->id}" }}"
                                                 title="{{ $item->started_at }}">
                                             <i class="fas fa-play"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-danger"
+                                                {{  siteconf()->get("product-import","xml-category-import-type") !== "full" ? "disabled" : "" }}
+                                                data-confirm="{{ "other-form-{$item->id}" }}"
+                                                title="{{ $item->full_import_at ? $item->full_import_at: "Скрыть непереданные категории и товары" }}">
+                                            <i class="fas fa-minus"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -45,6 +51,17 @@
                                     <template>
                                         <form action="{{ route('admin.ymls.run', ['file' => $item]) }}"
                                               id="run-form-{{ $item->id }}"
+                                              class="btn-group"
+                                              method="post">
+                                            @csrf
+                                            @method("put")
+                                        </form>
+                                    </template>
+                                </confirm-form>
+                                <confirm-form :id="'{{ "other-form-{$item->id}" }}'" confirm-text="Да, скрыть отсутствующие сущности">
+                                    <template>
+                                        <form action="{{ route('admin.ymls.other', ['file' => $item]) }}"
+                                              id="other-form-{{ $item->id }}"
                                               class="btn-group"
                                               method="post">
                                             @csrf

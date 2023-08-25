@@ -29,7 +29,8 @@ class AddYmlFileIdToCategoriesTable extends Migration
     public function down()
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->dropColumn('yml_file_id');
+            if (Schema::hasColumn('categories', 'yml_file_id'))
+                $table->dropColumn('yml_file_id');
         });
     }
 }

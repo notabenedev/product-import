@@ -4,17 +4,19 @@ namespace Notabenedev\ProductImport\Facades;
 
 use App\ImportYml;
 use Illuminate\Support\Facades\Facade;
+use Notabenedev\ProductImport\Helpers\ProductImportAuthActionsManager;
 
 /**
  *
- * Class ProductImportProtocolActions
+ * Class ProductImportAuthActions
  * @package Notabenedev\ProductImport\Facades
  *
- * @method static bool checkRequestUser()
- * @method static bool|string checkAuthUser()
- * @method static \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response setUserCookie($value)
+ * @method string getCookieName()
+ * @method bool checkRequestUser()
+ * @method  bool checkAuthUser()
  * @method static ImportYml|string getUserCookie()
- * @method static string getCookieName()
+ *
+ * @see ProductImportAuthActionsManager
  */
 class ProductImportAuthActions extends Facade
 {

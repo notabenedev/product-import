@@ -79,4 +79,15 @@ class YmlFile extends Model
     {
         return datehelper()->changeTz($value);
     }
+
+    /**
+     * Изменить дату полной выгрузки
+     *
+     * @param $value
+     * @return string
+     */
+    public function getFullImportAtAttribute($value)
+    {
+        return datehelper()->changeTz($value);
+    }
 }

@@ -22,4 +22,6 @@ Route::group([ ], function () {
     Route::put("ymls/{file}", "ImportYmlController@run")
         ->name("ymls.run");
 
+    Route::put("ymls-other/{file}", "ImportYmlController@other")
+        ->name("ymls.other");
 });

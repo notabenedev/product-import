@@ -129,6 +129,7 @@ class ProcessCategory implements ShouldQueue
         $model->import_uuid = $this->category->id;
         $model->import_parent = $this->category->parent;
         $model->yml_file_id = $this->ymlFileId;
+        $model->published_at = now();
         if($this->category->picture)
             if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
                 $model->uploadBase64Image($this->category->picture, "categories");

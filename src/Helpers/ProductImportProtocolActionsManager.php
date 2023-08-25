@@ -2,10 +2,7 @@
 
 namespace Notabenedev\ProductImport\Helpers;
 
-
 use App\ImportYml;
-use App\User;
-use Illuminate\Support\Facades\Auth;
 use Notabenedev\ProductImport\Facades\ProductImportAuthActions;
 use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
 use Notabenedev\ProductImport\Facades\ProductImportParserActions;

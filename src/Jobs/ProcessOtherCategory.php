@@ -8,9 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Notabenedev\ProductImport\Facades\ProductImportParserActions;
-use Notabenedev\ProductImport\Helpers\ProductImportParserActionsManager;
+use PortedCheese\CategoryProduct\Facades\CategoryActions;
+
 
 class ProcessOtherCategory implements ShouldQueue
 {
@@ -38,7 +37,11 @@ class ProcessOtherCategory implements ShouldQueue
     {
         if (empty($this->other))
             return null;
-        //TODO:  unpublish category
+        if ($this->other->published_at){
+            $this->other->published_at = null;
+            CategoryActions::runParentEvents($this->other);
+            $this->other->save();
+        }
     }
 
 }

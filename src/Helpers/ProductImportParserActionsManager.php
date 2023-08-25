@@ -4,11 +4,9 @@ namespace Notabenedev\ProductImport\Helpers;
 
 use App\Category;
 use App\ImportYml;
-use App\Jobs\Vendor\ProductImport\ProcessCategoryParent;
 use App\Jobs\Vendor\ProductImport\ProcessOtherCategory;
 use App\YmlFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
@@ -45,6 +43,7 @@ class ProductImportParserActionsManager
      * Начать обработку файла.
      *
      * @param YmlFile $file
+     * @return void
      */
     public function parseFile(YmlFile $file)
     {
@@ -54,9 +53,9 @@ class ProductImportParserActionsManager
         $this->ymlParser = simplexml_load_string(file_get_contents($path));
 
         switch ($file->type) {
-            case "catalog":  case "import":
-                $this->prepareImport();
-                $this->otherCategories($file);
+            case "catalog":  case "import": {
+            $this->prepareImport();
+            }
 
             case "offers":
                 //$this->prepareOffers();
@@ -68,7 +67,7 @@ class ProductImportParserActionsManager
      * Проверить обработку файла.
      *
      * @param ImportYml $yml
-     * @return YmlFile|string
+     * @return string
      */
     public function initParseFile(ImportYml $yml)
     {
@@ -86,7 +85,7 @@ class ProductImportParserActionsManager
      *
      * @param ImportYml $yml
      * @param $original
-     * @return YmlFile|string
+     * @return bool|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|string
      */
     protected function getYmlFile(ImportYml $yml, $original)
     {
@@ -105,6 +104,8 @@ class ProductImportParserActionsManager
      *
      * @param YmlFile $file
      * @return string
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function checkProgress(YmlFile $file): string
     {
@@ -118,7 +119,19 @@ class ProductImportParserActionsManager
             return ProductImportProtocolActions::answer("progress");
         }
         else {
-            return ProductImportProtocolActions::answer("success");
+            if (siteconf()->get("product-import", "xml-category-import-type") == "full"){
+                if (empty($file->full_import_at)) {
+                    $this::otherCategories($file->id);
+                    $file->full_import_at = now();
+                    $file->save();
+                    return ProductImportProtocolActions::answer("progress");
+                }
+                else
+                    return ProductImportProtocolActions::answer("success");
+            }
+            else{
+                return ProductImportProtocolActions::answer("success");
+            }
         }
     }
 
@@ -153,7 +166,11 @@ class ProductImportParserActionsManager
     }
 
     /**
-     * Обработка импорта.
+     * Обработка импорта
+     *
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function prepareImport()
     {
@@ -167,6 +184,10 @@ class ProductImportParserActionsManager
 
     /**
      * Проверить структуру категорий.
+     *
+     * @return bool|string|void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function initUpdateCategories()
     {
@@ -189,10 +210,14 @@ class ProductImportParserActionsManager
     }
 
     /**
-     * Добавить категории в очередь на обновление.
+     *  Добавить категории в очередь на обновление.
      *
+     * @param $isTree
      * @param \SimpleXMLElement $groups
-     * @param null $parent
+     * @param $parent
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function addCategoriesToQueue($isTree, \SimpleXMLElement $groups, $parent = null)
     {
@@ -240,24 +265,22 @@ class ProductImportParserActionsManager
     }
 
     /**
-     * Обработка импорта.
+     * Скрыть непереданные категории
+     * @param $ymlFileId
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    protected function otherCategories(YmlFile $file)
+    public static function otherCategories($ymlFileId)
     {
         if(siteconf()->get("product-import","xml-category-import-type") === "modify") return;
-
-        $ymlStartedAt = $file->started_at;
-
-        if (! empty($ymlStartedAt)) {
-
-            $otherCategories = Category::query()
-                ->where('yml_file_id', "<", $file->id)
+        $otherCategories = Category::query()
+                ->where('yml_file_id', "!=", $ymlFileId)
                 ->orWhereNull('yml_file_id')
                 ->get();
 
             foreach ($otherCategories as $other){
                 ProcessOtherCategory::dispatch($other)->onQueue(self::OTHER_CATEGORY_JOB);
             }
-        }
     }
 }

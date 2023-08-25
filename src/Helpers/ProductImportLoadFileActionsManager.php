@@ -2,9 +2,7 @@
 
 namespace Notabenedev\ProductImport\Helpers;
 
-
 use App\ImportYml;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
@@ -28,7 +26,9 @@ class ProductImportLoadFileActionsManager
     /**
      * Проверить имя файла.
      *
-     * @return bool|string
+     * @return false|mixed
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function checkFileName()
     {
@@ -42,7 +42,10 @@ class ProductImportLoadFileActionsManager
      * Загрузить файл.
      *
      * @param ImportYml $yml
-     * @return string
+     * @param $isForm
+     * @return bool|string
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function modeLoadFile(ImportYml $yml, $isForm = false)
     {
