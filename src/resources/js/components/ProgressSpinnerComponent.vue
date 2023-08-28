@@ -2,9 +2,10 @@
     <button type="button"
             @click="runProgress()"
             class="btn btn-warning"
+            :disabled="currentValue == 'success'"
             :title="title">
       <span v-if="start == true && currentValue !== 'success'" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-      <i v-else class="fas fa-play"></i>
+      <i v-else v-bind:class="currentValue == 'success' ? 'fas fa-check' : 'fas fa-play'"></i>
     </button>
 
 </template>

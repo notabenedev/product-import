@@ -39,7 +39,7 @@
                                         >
                                         </progress-spinner>
                                     </div>
-                                    @if ($item->started_at)
+                                    @if ($item->started_at && request()->has("action"))
                                         @role('admin')
                                         <div>
                                             <button type="button" class="btn btn-primary"
