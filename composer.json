@@ -14,9 +14,9 @@
         "ext-simplexml": "*",
         "ext-libxml": "*",
         "ext-fileinfo": "*",
-        "portedcheese/base-settings": "@dev",
-        "portedcheese/admin-site-menu": "@dev",
-        "portedcheese/category-product": "@dev"
+        "portedcheese/base-settings": "^4.0",
+        "portedcheese/admin-site-menu": "^1.6",
+        "portedcheese/category-product": "^1.1.2"
     },
     "autoload": {
         "psr-4": {
