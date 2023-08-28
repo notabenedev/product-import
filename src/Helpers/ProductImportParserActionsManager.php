@@ -283,4 +283,40 @@ class ProductImportParserActionsManager
                 ProcessOtherCategory::dispatch($other)->onQueue(self::OTHER_CATEGORY_JOB);
             }
     }
+
+    /**
+     * Возвращаем обработку файлов импорта
+     * @return float|int
+     */
+    public function getImportProgress()
+    {
+        $queue = $this->getJobsNames();
+        return DB::table("jobs")
+            ->select("id")
+            ->whereIn("queue", array_pop( $queue))
+            ->count();
+    }
+
+    /**
+     * Возвращаем обработку скрытия отсутствующих категорий
+     * @return float|int
+     */
+    public function getOtherProgress()
+    {
+        $queue = $this->getJobsNames();
+        return DB::table("jobs")
+            ->select("id")
+            ->whereIn("queue", $queue[count($queue) -1])
+            ->count();
+    }
+
+    /**
+     * Возвращаем обработку скрытия отсутствующих категорий
+     * @return float|int
+     */
+    public function getProgress(YmlFile $file)
+    {
+        return  $this->checkProgress($file);
+    }
+
 }

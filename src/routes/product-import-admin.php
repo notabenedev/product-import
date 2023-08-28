@@ -16,6 +16,9 @@ Route::group([ ], function () {
         return ProductImportProtocolActions::manualInit("form");
     })->name("ymls.load");
 
+    Route::get("ymls-progress/{file}", "ImportYmlController@progress")
+        ->name("ymls.progress");
+
     Route::resource("ymls", "ImportYmlController")
         ->only(["index","show","destroy"]);
     });
@@ -24,4 +27,8 @@ Route::group([ ], function () {
 
     Route::put("ymls-other/{file}", "ImportYmlController@other")
         ->name("ymls.other");
+
+
+
+
 });

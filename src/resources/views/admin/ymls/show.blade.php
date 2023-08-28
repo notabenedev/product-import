@@ -22,6 +22,7 @@
                         <th>Тип</th>
                         <th>Дата загрузки</th>
                         <th>Действия</th>
+                        <th>Детали</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -32,43 +33,63 @@
                             <td>{{ $item->created_at }}</td>
                             <td>
                                 <div role="toolbar" class="btn-toolbar">
-                                    <div class="btn-group mr-1">
-                                        <button type="button" class="btn btn-warning"
-{{--                                                {{  $item->started_at ? "disabled" : "" }}--}}
-                                                data-confirm="{{ "run-form-{$item->id}" }}"
-                                                title="{{ $item->started_at }}">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-danger"
-                                                {{  siteconf()->get("product-import","xml-category-import-type") !== "full" ? "disabled" : "" }}
-                                                data-confirm="{{ "other-form-{$item->id}" }}"
-                                                title="{{ $item->full_import_at ? $item->full_import_at: "Скрыть непереданные категории и товары" }}">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
+                                    <div class="btn-group mr-1{{ $item->started_at ? " d-none" : ""  }}">
+                                        <progress-spinner get-progress="{{ route("admin.ymls.progress",['file' => $item]) }}"
+                                                              title="{{ $item->started_at }}"
+                                        >
+                                        </progress-spinner>
                                     </div>
+                                    @if ($item->started_at)
+                                        @role('admin')
+                                        <div>
+                                            <button type="button" class="btn btn-primary"
+                                                    data-confirm="{{ "run-form-{$item->id}" }}"
+                                                    title="{{ $item->started_at ? $item->started_at: "Запустить импорт вручную" }}">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+
+                                            <button type="button" class="btn btn-danger"
+                                                    {{  siteconf()->get("product-import","xml-category-import-type") !== "full" ? "disabled" : "" }}
+                                                    data-confirm="{{ "other-form-{$item->id}" }}"
+                                                    title="{{ $item->full_import_at ? $item->full_import_at: "Скрыть непереданные категории и товары" }}">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+
+                                            <confirm-form :id="'{{ "run-form-{$item->id}" }}'" confirm-text="Да, запустить">
+                                                <template>
+                                                    <form action="{{ route('admin.ymls.run', ['file' => $item]) }}"
+                                                          id="run-form-{{ $item->id }}"
+                                                          class="btn-group"
+                                                          method="post">
+                                                        @csrf
+                                                        @method("put")
+                                                    </form>
+                                                </template>
+                                            </confirm-form>
+
+                                            <confirm-form :id="'{{ "other-form-{$item->id}" }}'" confirm-text="Да, скрыть отсутствующие сущности">
+                                                <template>
+                                                    <form action="{{ route('admin.ymls.other', ['file' => $item]) }}"
+                                                          id="other-form-{{ $item->id }}"
+                                                          class="btn-group"
+                                                          method="post">
+                                                        @csrf
+                                                        @method("put")
+                                                    </form>
+                                                </template>
+                                            </confirm-form>
+                                        </div>
+                                        @endrole('admin')
+                                    @endif
                                 </div>
-                                <confirm-form :id="'{{ "run-form-{$item->id}" }}'" confirm-text="Да, запустить">
-                                    <template>
-                                        <form action="{{ route('admin.ymls.run', ['file' => $item]) }}"
-                                              id="run-form-{{ $item->id }}"
-                                              class="btn-group"
-                                              method="post">
-                                            @csrf
-                                            @method("put")
-                                        </form>
-                                    </template>
-                                </confirm-form>
-                                <confirm-form :id="'{{ "other-form-{$item->id}" }}'" confirm-text="Да, скрыть отсутствующие сущности">
-                                    <template>
-                                        <form action="{{ route('admin.ymls.other', ['file' => $item]) }}"
-                                              id="other-form-{{ $item->id }}"
-                                              class="btn-group"
-                                              method="post">
-                                            @csrf
-                                            @method("put")
-                                        </form>
-                                    </template>
-                                </confirm-form>
+                            </td>
+                            <td>
+                                @isset($item->started_at)
+                                    Запущена: {{ $item->started_at }}<br>
+                                @endisset
+                                @isset($item->full_import_at)
+                                    Полная выгрузка: {{ $item->full_import_at }}
+                                @endisset
                             </td>
                         </tr>
                     @endforeach

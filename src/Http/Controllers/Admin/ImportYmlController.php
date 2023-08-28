@@ -35,7 +35,9 @@ class ImportYmlController extends Controller
      */
     public function show(ImportYml $yml)
     {
-        return view("product-import::admin.ymls.show",['yml' => $yml]);
+        return view("product-import::admin.ymls.show",[
+            'yml' => $yml,
+        ]);
     }
 
 
@@ -56,7 +58,7 @@ class ImportYmlController extends Controller
 
 
     /**
-     * Запускаем очередь
+     * Запускаем очередь импорта (вручную)
      *
      * @param YmlFile $file
      * @return RedirectResponse
@@ -75,7 +77,7 @@ class ImportYmlController extends Controller
     }
 
     /**
-     * Скрыть категории и товары вне выгрузки
+     * Скрыть категории и товары вне выгрузки (вручную)
      *
      * @param YmlFile $file
      * @return RedirectResponse
@@ -97,5 +99,19 @@ class ImportYmlController extends Controller
         else{
             return redirect()->back()->with("danger", "Настройки импорта не предусматривают полную выгрузку категорий");
         }
+    }
+
+    /**
+     * Отзывчиваяк нопка run & other (запуск импорта через компонент - спиннер)
+     *
+     * @param YmlFile $file
+     * @return \Illuminate\Http\JsonResponse|RedirectResponse
+     */
+    public function progress(YmlFile $file)
+    {
+        if (ProductImportParserActions::getJobsCount())
+            return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
+
+        return response()->json(["answer" => ProductImportParserActions::getProgress($file)]);
     }
 }

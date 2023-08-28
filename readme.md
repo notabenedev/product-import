@@ -10,6 +10,7 @@
                             {--all : Run all}
                             {--config : make config}
                             {--js : export js}
+                            {--vue : export vue components}
                             {--models: export models}
                             {--controllers: export controllers}
                             {--jobs: export jobs}

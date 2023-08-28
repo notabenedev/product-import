@@ -18,6 +18,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
                     {--all : Run all}
                     {--config : Make config}    
                     {--js : Export scripts}
+                    {--vue : Export vue components}
                     {--models : Export models}
                     {--controllers : Export controllers}
                     {--jobs : Export jobs}';
@@ -115,6 +116,24 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     ];
 
     /**
+     * Папка для vue файлов.
+     *
+     * @var string
+     */
+    protected $vueFolder = "product-import";
+
+    /**
+     * Список vue файлов.
+     *
+     * @var array
+     */
+    protected $vueIncludes = [
+        'admin' => [
+            'progress-spinner' => "ProgressSpinnerComponent",
+        ],
+    ];
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -150,6 +169,10 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
 
         if ($this->option("js") || $all) {
             $this->makeJsIncludes("admin");
+        }
+
+        if ($this->option("vue") || $all) {
+            $this->makeVueIncludes("admin");
         }
 
     }
