@@ -37,6 +37,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $configTemplate = "product-import::admin.settings";
     protected $configValues = [
         'xml-root' => 'yml_catalog',
+        'xml-root-product' => '',
 
         'xml-picture-import-type' => 'base64',
 
@@ -63,7 +64,9 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
 
         'xml-product-name' => 'name',
         'xml-product-picture' => 'picture',
+        'xml-product-picture-add' => '',
         'xml-product-description' => 'description',
+        'xml-product-store' => '',
 
         'xml-variation-type' => 'product',
         'xml-product-price' => 'price',
@@ -101,7 +104,8 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         "ProcessYmlFile",
         "ProcessCategory",
         "ProcessCategoryParent",
-        "ProcessOtherCategory"
+        "ProcessProduct",
+        "ProcessOtherCategory",
     ];
 
     /**

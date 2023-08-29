@@ -17,7 +17,8 @@ use Notabenedev\ProductImport\Helpers\ProductImportParserActionsManager;
  * @method \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany getYmlFile(ImportYml $yml, $original)
  * @method string checkProgress(YmlFile $file)
  * @method int getJobsCount()
- * @method string findCategoryByUUid(string $uuid)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null findCategoryByUUid(string $uuid)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null findProductByUUid(string $uuid)
  * @method static void otherCategories($ymlFileId)
  *
  * @see ProductImportParserActionsManager

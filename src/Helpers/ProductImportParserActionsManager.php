@@ -5,8 +5,11 @@ namespace Notabenedev\ProductImport\Helpers;
 use App\Category;
 use App\ImportYml;
 use App\Jobs\Vendor\ProductImport\ProcessOtherCategory;
+use App\Jobs\Vendor\ProductImport\ProcessProduct;
+use App\Product;
 use App\YmlFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 use Notabenedev\ProductImport\Facades\ProductImportLoadFileActions;
@@ -27,6 +30,7 @@ class ProductImportParserActionsManager
     protected null|\SimpleXMLElement $ymlParser;
     protected null|int $ymlFileId;
     protected $import;
+    protected $importProducts;
     protected $offers;
     protected $props;
 
@@ -179,8 +183,50 @@ class ProductImportParserActionsManager
         else
             $this->import = $this->ymlParser->{siteconf()->get("product-import","xml-root")};
 
+        if (! empty($this->ymlParser->{siteconf()->get("product-import","xml-root-product")}))
+            $this->importProducts = $this->ymlParser->{siteconf()->get("product-import","xml-root-product")};
+        else
+            $this->importProducts = $this->import;
+
         $this->initUpdateCategories();
+        $this->initUpdateProducts();
     }
+
+    /**
+     * Проверить структуру товаров.
+     *
+     * @return bool|string|void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    protected function initUpdateProducts()
+    {
+
+        $importPath =  $this->importProducts->{siteconf()->get("product-import","xml-products-root")}[0];
+        if (empty($importPath))
+            return ProductImportProtocolActions::failure("Product's structure not found");
+
+        $groups = $importPath->children();
+
+        $this->addProductsToQueue($groups);
+    }
+
+    /**
+     *  Добавить категории в очередь на обновление.
+     *
+     * @param \SimpleXMLElement $groups
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    protected function addProductsToQueue(\SimpleXMLElement $groups)
+    {
+        foreach ($groups as $group) {
+            ProcessProduct::dispatch($group->asXML(), $this->ymlFileId)->onQueue(self::PRODUCT_JOB);
+        }
+
+    }
+
 
     /**
      * Проверить структуру категорий.
@@ -252,11 +298,29 @@ class ProductImportParserActionsManager
      * @param string $uuid
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|Category|null
      */
-    public function findCategoryByUUid(string $uuid)
+    public static function findCategoryByUUid(string $uuid)
     {
         try {
             return Category::query()
                 ->where("import_uuid", $uuid)
+                ->firstOrFail();
+        }
+        catch (\Exception $exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Найти Продукт по id импорта
+     *
+     * @param string $importId
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|null
+     */
+    public static function findProductByUUid(string $importId)
+    {
+        try {
+            return Product::query()
+                ->where("import_uuid", $importId)
                 ->firstOrFail();
         }
         catch (\Exception $exception) {

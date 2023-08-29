@@ -4,6 +4,7 @@
 
         let categoriesElement = document.getElementById('xmlCategoryParentType');
         let variationsElement = document.getElementById('xmlVariationType');
+        let rootProductElement = document.getElementById('xmlRootProductSelect');
 
         if(categoriesElement) {
             showHide(categoriesElement,"show-attribute","show-element-tree",'xmlCategoryParentAttributeBlock','xmlCategoryElementTreeBlock' );
@@ -17,6 +18,14 @@
 
             variationsElement.addEventListener('change', function(){
                 showHide(variationsElement,"show-product","show-file",'xmlVariationProductBlock','xmlVariationFileBlock' );
+            });
+        }
+
+        if(rootProductElement) {
+            showHide(rootProductElement,"show-root-product","hide-root-product",'xmlRootProductBlock','xmlRootBlock' );
+
+            rootProductElement.addEventListener('change', function(){
+                showHide(rootProductElement,"show-root-product","hide-root-product",'xmlRootProductBlock','xmlRootBlock' );
             });
         }
 

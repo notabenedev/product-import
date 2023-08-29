@@ -206,6 +206,35 @@
 
         <div class="col-12 col-sm-6 col-lg-4">
             <h4>Товары</h4>
+
+            <label class="text-secondary my-2" for="xmlRootProductSelect">Тип структуры импорта товаров</label>
+            <select type="text"
+                    id="xmlRootProductSelect"
+                    name="data-xml-root-product-select"
+                    class="form-control @error("xml-product-import-type") is-invalid @enderror">
+                <option class="hide-root-product" value="root" {{ ! old("xml-product-import-type", base_config()->get($name, "xml-root-product", null)) ? " selected" : "" }}>
+                    В корневом xml-элементе
+                </option>
+                <option class="show-root-product" value="root-product" {{ old("xml-product-import-type", base_config()->get($name, "xml-root-product", null))  ? " selected" : "" }}>
+                    В отдельном xml-элементе товаров
+                </option>
+            </select>
+
+            <div id="xmlRootProductBlock">
+                <label class="text-secondary my-2" for="xmlRootProduct">Отдельный Корневой xml элемент Товаров</label>
+                <input type="text"
+                       id="xmlRootProduct"
+                       name="data-xml-root-product"
+                       value="{{ old("xml-root-product", base_config()->get($name, "xml-root-product", null)) }}"
+                       class="form-control @error("xml-root-product") is-invalid @enderror">
+                @error("xml-root-product")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+            </div>
+            <div id="xmlRootBlock"></div>
+
             <label class="text-secondary my-2" for="xmlProductsRoot">Корневой xml элемент Товаров</label>
             <input type="text"
                    id="xmlProductsRoot"
@@ -307,13 +336,25 @@
                 </div>
                 @enderror
 
-                <label class="text-secondary my-2" for="xmlProductPicture">xml элемент Изображение Товара</label>
+                <label class="text-secondary my-2" for="xmlProductPicture">xml элемент Картинка Товара</label>
                 <input type="text"
                        id="xmlProductPicture"
                        name="data-xml-product-picture"
                        value="{{ old("xml-product-picture", base_config()->get($name, "xml-product-picture", "")) }}"
                        class="form-control @error("xml-product-picture") is-invalid @enderror">
                 @error("xml-product-picture")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlProductPictureAdd">xml элемент Картинка Товара (дополнительный)</label>
+                <input type="text"
+                       id="xmlProductPictureAdd"
+                       name="data-xml-product-picture-add"
+                       value="{{ old("xml-product-picture-add", base_config()->get($name, "xml-product-picture-add", "")) }}"
+                       class="form-control @error("xml-product-picture-add") is-invalid @enderror">
+                @error("xml-product-picture-add")
                 <div class="invalid-feedback" role="alert">
                     {{ $message }}
                 </div>
@@ -326,6 +367,18 @@
                        value="{{ old("xml-product-description", base_config()->get($name, "xml-product-description", "")) }}"
                        class="form-control @error("xml-product-description") is-invalid @enderror">
                 @error("xml-product-description")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlProductStore">xml элемент Доступность товара</label>
+                <input type="text"
+                       id="xmlProductStore"
+                       name="data-xml-product-store"
+                       value="{{ old("xml-product-code", base_config()->get($name, "xml-product-store", "")) }}"
+                       class="form-control @error("xml-product-store") is-invalid @enderror">
+                @error("xml-product-store")
                 <div class="invalid-feedback" role="alert">
                     {{ $message }}
                 </div>

@@ -68,6 +68,7 @@ class ProcessCategory implements ShouldQueue
                 "parent" => ! empty($this->parent) ? $this->parent: null,
                 "priority" => $this->priority,
                 "ymlFileId" => $this->ymlFileId,
+                "picture" => null,
             ];
         } elseif (siteconf()->get("product-import", "xml-category-parent-type") == "element-tree")
         {
