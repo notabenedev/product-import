@@ -43,7 +43,7 @@
                         name="data-xml-category-import-type"
                         class="form-control @error("xml-category-import-type") is-invalid @enderror">
                     <option value="full" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "full" ? " selected" : "" }}>
-                        Полная выгрузка: !!! удаление всех отстутствующих категорий, товаров, цен, заказов !!!
+                        Полная выгрузка: скрытие всех отстутствующих категорий
                     </option>
                     <option value="modify" {{ old("xml-category-import-type", base_config()->get($name, "xml-category-import-type", "modify")) == "modify" ? " selected" : "" }}>
                         Только изменения (изменение переданных категорий)
@@ -206,6 +206,20 @@
 
         <div class="col-12 col-sm-6 col-lg-4">
             <h4>Товары</h4>
+            <div class="form-group">
+                <label class="text-secondary my-2" for="xmlProductImportType">Тип импорта товаров</label>
+                <select type="text"
+                        id="xmlProductImportType"
+                        name="data-xml-product-import-type"
+                        class="form-control @error("xml-product-import-type") is-invalid @enderror">
+                    <option value="full" {{ old("xml-product-import-type", base_config()->get($name, "xml-product-import-type", "modify")) == "full" ? " selected" : "" }}>
+                        Полная выгрузка: скрытие всех отстутствующих товаров
+                    </option>
+                    <option value="modify" {{ old("xml-product-import-type", base_config()->get($name, "xml-product-import-type", "modify")) == "modify" ? " selected" : "" }}>
+                        Только изменения (изменение переданных категорий)
+                    </option>
+                </select>
+            </div>
 
             <label class="text-secondary my-2" for="xmlRootProductSelect">Тип структуры импорта товаров</label>
             <select type="text"

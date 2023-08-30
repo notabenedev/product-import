@@ -54,6 +54,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         'xml-category-element-tree-picture' => '',
         'xml-category-element-tree-picture-add' => '',
 
+        'xml-product-import-type' => 'modify',
         'xml-products-root' => 'offers',
         'xml-product' => 'offer',
         'xml-product-id-type' => 'attribute',
@@ -106,6 +107,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         "ProcessCategoryParent",
         "ProcessProduct",
         "ProcessOtherCategory",
+        "ProcessOtherProduct",
     ];
 
     /**

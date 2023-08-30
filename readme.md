@@ -15,7 +15,7 @@
                             {--controllers: export controllers}
                             {--jobs: export jobs}
 ## Queue
-    - php artisan queue:work --queue=default,processYmlFile,processCategory,processCategoryParent,processProduct,processOtherCategory
+    - php artisan queue:work --queue=default,processYmlFile,processCategory,processCategoryParent,processProduct,processOtherCategory,processOtherProduct
 
 ## Update
    

@@ -5,6 +5,7 @@ namespace Notabenedev\ProductImport\Helpers;
 use App\Category;
 use App\ImportYml;
 use App\Jobs\Vendor\ProductImport\ProcessOtherCategory;
+use App\Jobs\Vendor\ProductImport\ProcessOtherProduct;
 use App\Jobs\Vendor\ProductImport\ProcessProduct;
 use App\Product;
 use App\YmlFile;
@@ -26,6 +27,7 @@ class ProductImportParserActionsManager
     const PRODUCT_JOB = "processProduct";
     const OFFER_JOB = "processOffer";
     const OTHER_CATEGORY_JOB = "processOtherCategory";
+    const OTHER_PRODUCT_JOB = "processOtherProduct";
 
     protected null|\SimpleXMLElement $ymlParser;
     protected null|int $ymlFileId;
@@ -123,9 +125,14 @@ class ProductImportParserActionsManager
             return ProductImportProtocolActions::answer("progress");
         }
         else {
-            if (siteconf()->get("product-import", "xml-category-import-type") == "full"){
+            if (siteconf()->get("product-import", "xml-category-import-type") == "full"
+            || siteconf()->get("product-import", "xml-product-import-type") == "full")
+            {
                 if (empty($file->full_import_at)) {
-                    $this::otherCategories($file->id);
+                    if (siteconf()->get("product-import", "xml-category-import-type") == "full")
+                        $this::otherCategories($file->id);
+                    if (siteconf()->get("product-import", "xml-product-import-type") == "full")
+                        $this::otherProducts($file->id);
                     $file->full_import_at = now();
                     $file->save();
                     return ProductImportProtocolActions::answer("progress");
@@ -165,7 +172,8 @@ class ProductImportParserActionsManager
             self::CATEGORY_PARENT_JOB,
             self::PRODUCT_JOB,
             self::OFFER_JOB,
-            self::OTHER_CATEGORY_JOB
+            self::OTHER_CATEGORY_JOB,
+            self::OTHER_PRODUCT_JOB,
         ];
     }
 
@@ -349,29 +357,23 @@ class ProductImportParserActionsManager
     }
 
     /**
-     * Возвращаем обработку файлов импорта
-     * @return float|int
+     * Скрыть непереданные товары
+     * @param $ymlFileId
+     * @return void
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function getImportProgress()
+    public static function otherProducts($ymlFileId)
     {
-        $queue = $this->getJobsNames();
-        return DB::table("jobs")
-            ->select("id")
-            ->whereIn("queue", array_pop( $queue))
-            ->count();
-    }
+        if(siteconf()->get("product-import","xml-product-import-type") === "modify") return;
+        $otherProducts = Product::query()
+            ->where('yml_file_id', "!=", $ymlFileId)
+            ->orWhereNull('yml_file_id')
+            ->get();
 
-    /**
-     * Возвращаем обработку скрытия отсутствующих категорий
-     * @return float|int
-     */
-    public function getOtherProgress()
-    {
-        $queue = $this->getJobsNames();
-        return DB::table("jobs")
-            ->select("id")
-            ->whereIn("queue", $queue[count($queue) -1])
-            ->count();
+        foreach ($otherProducts as $other){
+            ProcessOtherProduct::dispatch($other)->onQueue(self::OTHER_PRODUCT_JOB);
+        }
     }
 
     /**

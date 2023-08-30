@@ -133,9 +133,20 @@ class ProcessCategory implements ShouldQueue
         $model->published_at = now();
         if($this->category->picture)
             if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
-                $model->uploadBase64Image($this->category->picture, "categories");
+                try{
+                    $model->uploadBase64Image($this->category->picture, "categories");
+                }
+                catch (\Exception $e){
+                    Log::warning("Изображение base64 не загружено для Категории ".$this->category->title.":".$e);
+                }
+
             }else {
-                $model->uploadUrlImage($this->category->picture, "categories");
+                try{
+                    $model->uploadUrlImage($this->category->picture, "categories");
+                }
+                catch (\Exception $e){
+                    Log::warning("Изображение url не загружено для Категории ".$this->category->title.":".$e);
+                }
             }
         $model->save();
         return $model;

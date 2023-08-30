@@ -110,6 +110,8 @@ class ProcessProduct implements ShouldQueue
         ];
 
         list($product,$category) = $this->importItem();
+        if (empty($category))
+            Log::warning("Категория для импорта не найдена. Товар $title не загружен.");
     }
 
     /**
@@ -156,9 +158,19 @@ class ProcessProduct implements ShouldQueue
 
         if($this->product->picture)
             if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
-                $model->uploadBase64GalleryImage($this->product->picture, "gallery/products");
+                try{
+                    $model->uploadBase64GalleryImage($this->product->picture, "gallery/products");
+                }
+                catch (\Exception $e){
+                    Log::warning("Изображение base64 не загружено для Товара ".$this->product->title.":".$e);
+                }
             }else {
-                $model->uploadUrlGalleryImage($this->product->picture, "gallery/products");
+                try {
+                    $model->uploadUrlGalleryImage($this->product->picture, "gallery/products");
+                }
+                catch (\Exception $e){
+                    Log::warning("Изображение url не загружено для Товара ".$this->product->title.":".$e);
+                }
             }
         $model->save();
 
