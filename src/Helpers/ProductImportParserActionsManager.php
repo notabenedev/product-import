@@ -214,8 +214,8 @@ class ProductImportParserActionsManager
         if (empty($importPath))
             return ProductImportProtocolActions::failure("Product's structure not found");
 
+        $this->getProps();
         $groups = $importPath->children();
-
         $this->addProductsToQueue($groups);
     }
 
@@ -230,11 +230,46 @@ class ProductImportParserActionsManager
     protected function addProductsToQueue(\SimpleXMLElement $groups)
     {
         foreach ($groups as $group) {
-            ProcessProduct::dispatch($group->asXML(), $this->ymlFileId)->onQueue(self::PRODUCT_JOB);
+            ProcessProduct::dispatch($group->asXML(), $this->ymlFileId, $this->props)->onQueue(self::PRODUCT_JOB);
         }
 
     }
 
+    /**
+     * Получаем свойства товаров
+     */
+    protected function getProps()
+    {
+        $this->props = [];
+        switch (siteconf()->get("product-import","xml-prop-type")){
+            case "list": case "list-element":
+                if (empty($this->import->{siteconf()->get("product-import","xml-prop-list-root")})) return;
+                $loop = 0;
+                foreach ($this->import->{siteconf()->get("product-import","xml-prop-list-root")}[0]->children() as $item){
+                    if (siteconf()->get("product-import","xml-prop-type" == "list-element")){
+                        $propId = ! empty($item) ?  str_replace(" ", "", $item->__toString()): null;
+                        $propValue= ! empty($item) ? $item->__toString() : null;
+                    }
+                    else {
+                        $propId= ! empty($item->{siteconf()->get("product-import","xml-prop-list-id")}) ?
+                            $item->{siteconf()->get("product-import","xml-prop-list-id")}->__toString() : null;
+                        $propValue= ! empty($item->{siteconf()->get("product-import","xml-prop-list-name")}) ?
+                            $item->{siteconf()->get("product-import","xml-prop-list-name")}->__toString() : null;
+                    }
+
+                    if (empty($propValue)) continue;
+                    //формируем массив свойств
+                    $this->props[$propId] = $propValue;
+                    $loop++;
+                    //Log::info($propId." : ".$propValue);
+                }
+                break;
+
+            default:
+                break;
+        }
+
+    }
 
     /**
      * Проверить структуру категорий.

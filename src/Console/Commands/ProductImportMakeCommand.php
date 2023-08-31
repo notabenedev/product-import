@@ -82,6 +82,15 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         'xml-code-type' => 'product-attribute',
         'xml-code' => 'id',
 
+        'xml-prop-type' => 'list',
+        'xml-prop-list-root' => 'Свойства',
+        'xml-prop-list-id' => 'Ид',
+        'xml-prop-list-name' => 'Наименование',
+        'xml-prop-group' => 'ЗначенияСвойств',
+        'xml-prop' => 'ЗначенияСвойства',
+        'xml-prop-id' => 'Ид',
+        'xml-prop-value' => 'Значение',
+
     ];
 
     /**
