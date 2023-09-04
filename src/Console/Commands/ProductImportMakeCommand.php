@@ -73,11 +73,17 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         'xml-product-price' => 'price',
         'xml-product-old-price' => 'oldprice',
 
-        'xml-variations-root' => 'Предложения',
-        'xml-variation' => 'Предложениe',
+        'xml-variations-root' => 'ПакетПредложений',
+        'xml-variations' => 'Предложения',
+        'xml-variation-product-id' => 'Ид',
+        'xml-variation-product-title' => 'Наименование',
         'xml-variation-prices' => 'Цены',
         'xml-variation-price-element' => 'Цена',
-        'xml-variation-price' => 'ЦенаЗаЕдиницу',
+
+        'xml-variation-price' => 'ЦенаСайта',
+        'xml-variation-price-desc' => 'Единица',
+        'xml-variation-old-price' => 'ЦенаЗаЕдиницу',
+        'xml-variation-count' => 'Количество',
 
         'xml-code-type' => 'product-attribute',
         'xml-code' => 'id',
@@ -115,6 +121,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
         "ProcessCategory",
         "ProcessCategoryParent",
         "ProcessProduct",
+        "ProcessOffer",
         "ProcessOtherCategory",
         "ProcessOtherProduct",
     ];

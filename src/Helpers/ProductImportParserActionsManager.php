@@ -4,6 +4,7 @@ namespace Notabenedev\ProductImport\Helpers;
 
 use App\Category;
 use App\ImportYml;
+use App\Jobs\Vendor\ProductImport\ProcessOffer;
 use App\Jobs\Vendor\ProductImport\ProcessOtherCategory;
 use App\Jobs\Vendor\ProductImport\ProcessOtherProduct;
 use App\Jobs\Vendor\ProductImport\ProcessProduct;
@@ -26,6 +27,7 @@ class ProductImportParserActionsManager
 
     const PRODUCT_JOB = "processProduct";
     const OFFER_JOB = "processOffer";
+
     const OTHER_CATEGORY_JOB = "processOtherCategory";
     const OTHER_PRODUCT_JOB = "processOtherProduct";
 
@@ -41,6 +43,7 @@ class ProductImportParserActionsManager
         $this->ymlFileId = null;
         $this->ymlParser = null;
         $this->import = null;
+        $this->importProducts = null;
         $this->offers = null;
         $this->props = [];
     }
@@ -56,7 +59,12 @@ class ProductImportParserActionsManager
         $path = Storage::disk("public")->path($file->path);
 
         $this->ymlFileId = $file->id;
-        $this->ymlParser = simplexml_load_string(file_get_contents($path));
+        try {
+            $this->ymlParser = simplexml_load_string(file_get_contents($path));
+        }
+        catch (\Exception $e){
+            Log::warning("Невалидный YML: ".$e);
+        }
 
         switch ($file->type) {
             case "catalog":  case "import": {
@@ -64,7 +72,7 @@ class ProductImportParserActionsManager
             }
 
             case "offers":
-                //$this->prepareOffers();
+                $this->prepareOffers();
                 break;
         }
     }
@@ -125,14 +133,16 @@ class ProductImportParserActionsManager
             return ProductImportProtocolActions::answer("progress");
         }
         else {
-            if (siteconf()->get("product-import", "xml-category-import-type") == "full"
-            || siteconf()->get("product-import", "xml-product-import-type") == "full")
+            if (base_config()->get("product-import", "xml-category-import-type") == "full"
+            || base_config()->get("product-import", "xml-product-import-type") == "full")
             {
                 if (empty($file->full_import_at)) {
-                    if (siteconf()->get("product-import", "xml-category-import-type") == "full")
-                        $this::otherCategories($file->id);
-                    if (siteconf()->get("product-import", "xml-product-import-type") == "full")
-                        $this::otherProducts($file->id);
+                    if ($file->type !== "offers"){
+                        if (base_config()->get("product-import", "xml-category-import-type") == "full")
+                            $this::otherCategories($file->id);
+                        if (base_config()->get("product-import", "xml-product-import-type") == "full")
+                            $this::otherProducts($file->id);
+                    }
                     $file->full_import_at = now();
                     $file->save();
                     return ProductImportProtocolActions::answer("progress");
@@ -186,13 +196,13 @@ class ProductImportParserActionsManager
      */
     protected function prepareImport()
     {
-        if (empty($this->ymlParser->{siteconf()->get("product-import","xml-root")}))
+        if (empty($this->ymlParser->{base_config()->get("product-import","xml-root")}))
              return;
-        else
-            $this->import = $this->ymlParser->{siteconf()->get("product-import","xml-root")};
 
-        if (! empty($this->ymlParser->{siteconf()->get("product-import","xml-root-product")}))
-            $this->importProducts = $this->ymlParser->{siteconf()->get("product-import","xml-root-product")};
+        $this->import = $this->ymlParser->{base_config()->get("product-import","xml-root")};
+
+        if (! empty($this->ymlParser->{base_config()->get("product-import","xml-root-product")}))
+            $this->importProducts = $this->ymlParser->{base_config()->get("product-import","xml-root-product")};
         else
             $this->importProducts = $this->import;
 
@@ -200,6 +210,31 @@ class ProductImportParserActionsManager
         $this->initUpdateProducts();
     }
 
+    /**
+     * Обработка предложений.
+     */
+    protected function prepareOffers()
+    {
+        if (empty($this->ymlParser->{base_config()->get("product-import","xml-variations-root")})) return;
+
+        $this->offers = $this->ymlParser->{base_config()->get("product-import","xml-variations-root")};
+
+        $this->initUpdateOffers();
+    }
+
+    /**
+     * Рарабрать структуру цен.
+     */
+    protected function initUpdateOffers()
+    {
+        $importPath =  $this->offers->{base_config()->get("product-import","xml-variations")}[0];
+        if (empty($importPath))
+            return ProductImportProtocolActions::failure("Offer's structure not found");
+
+        $groups = $importPath->children();
+
+        $this->addOffersToQueue($groups);
+    }
     /**
      * Проверить структуру товаров.
      *
@@ -210,7 +245,7 @@ class ProductImportParserActionsManager
     protected function initUpdateProducts()
     {
 
-        $importPath =  $this->importProducts->{siteconf()->get("product-import","xml-products-root")}[0];
+        $importPath =  $this->importProducts->{base_config()->get("product-import","xml-products-root")}[0];
         if (empty($importPath))
             return ProductImportProtocolActions::failure("Product's structure not found");
 
@@ -236,25 +271,37 @@ class ProductImportParserActionsManager
     }
 
     /**
+     * @param \SimpleXMLElement $groups
+     * @return void
+     */
+    protected function addOffersToQueue(\SimpleXMLElement $groups)
+    {
+        foreach ($groups as $group) {
+            ProcessOffer::dispatch($group->asXML())->onQueue(self::OFFER_JOB);
+        }
+
+    }
+
+    /**
      * Получаем свойства товаров
      */
     protected function getProps()
     {
         $this->props = [];
-        switch (siteconf()->get("product-import","xml-prop-type")){
+        switch (base_config()->get("product-import","xml-prop-type")){
             case "list": case "list-element":
-                if (empty($this->import->{siteconf()->get("product-import","xml-prop-list-root")})) return;
+                if (empty($this->import->{base_config()->get("product-import","xml-prop-list-root")})) return;
                 $loop = 0;
-                foreach ($this->import->{siteconf()->get("product-import","xml-prop-list-root")}[0]->children() as $item){
-                    if (siteconf()->get("product-import","xml-prop-type" == "list-element")){
+                foreach ($this->import->{base_config()->get("product-import","xml-prop-list-root")}[0]->children() as $item){
+                    if (base_config()->get("product-import","xml-prop-type" == "list-element")){
                         $propId = ! empty($item) ?  str_replace(" ", "", $item->__toString()): null;
                         $propValue= ! empty($item) ? $item->__toString() : null;
                     }
                     else {
-                        $propId= ! empty($item->{siteconf()->get("product-import","xml-prop-list-id")}) ?
-                            $item->{siteconf()->get("product-import","xml-prop-list-id")}->__toString() : null;
-                        $propValue= ! empty($item->{siteconf()->get("product-import","xml-prop-list-name")}) ?
-                            $item->{siteconf()->get("product-import","xml-prop-list-name")}->__toString() : null;
+                        $propId= ! empty($item->{base_config()->get("product-import","xml-prop-list-id")}) ?
+                            $item->{base_config()->get("product-import","xml-prop-list-id")}->__toString() : null;
+                        $propValue= ! empty($item->{base_config()->get("product-import","xml-prop-list-name")}) ?
+                            $item->{base_config()->get("product-import","xml-prop-list-name")}->__toString() : null;
                     }
 
                     if (empty($propValue)) continue;
@@ -281,14 +328,14 @@ class ProductImportParserActionsManager
     protected function initUpdateCategories()
     {
 
-        if ((siteconf()->get("product-import","xml-categories-root-add") && siteconf()->get("product-import","xml-categories-root-add") !== "")){
+        if ((base_config()->get("product-import","xml-categories-root-add") && base_config()->get("product-import","xml-categories-root-add") !== "")){
             $importPath = $this->import
-                ->{siteconf()->get("product-import","xml-categories-root")}[0]
-                ->{siteconf()->get("product-import","xml-categories-root-add")}[0];
+                ->{base_config()->get("product-import","xml-categories-root")}[0]
+                ->{base_config()->get("product-import","xml-categories-root-add")}[0];
         }
         else {
             $importPath = $this->import
-                    ->{siteconf()->get("product-import", "xml-categories-root")}[0];
+                    ->{base_config()->get("product-import", "xml-categories-root")}[0];
         }
         if ($importPath)
             $groups = $importPath->children();
@@ -320,14 +367,14 @@ class ProductImportParserActionsManager
             foreach ($groups as $group) {
                 ProcessCategory::dispatch($group->asXML(), $parent, $priority++, $this->ymlFileId)->onQueue(self::CATEGORY_JOB);
 
-                if (empty($group[0]->{siteconf()->get("product-import","xml-categories-root")}[0]))
+                if (empty($group[0]->{base_config()->get("product-import","xml-categories-root")}[0]))
                     continue;
-                if (siteconf()->get("product-import", "xml-category-id-type") == "element"){
-                    $current = ! empty($group[0]->{siteconf()->get("product-import","xml-category-id")}) ?
-                        $group[0]->{siteconf()->get("product-import","xml-category-id")}->__toString()
+                if (base_config()->get("product-import", "xml-category-id-type") == "element"){
+                    $current = ! empty($group[0]->{base_config()->get("product-import","xml-category-id")}) ?
+                        $group[0]->{base_config()->get("product-import","xml-category-id")}->__toString()
                         : null;
                     $children = $group[0]
-                        ->{siteconf()->get("product-import","xml-categories-root")}[0]
+                        ->{base_config()->get("product-import","xml-categories-root")}[0]
                         ->children();
                     $this->addCategoriesToQueue($isTree, $children, $current);
                 }
@@ -380,7 +427,7 @@ class ProductImportParserActionsManager
      */
     public static function otherCategories($ymlFileId)
     {
-        if(siteconf()->get("product-import","xml-category-import-type") === "modify") return;
+        if(base_config()->get("product-import","xml-category-import-type") === "modify") return;
         $otherCategories = Category::query()
                 ->where('yml_file_id', "!=", $ymlFileId)
                 ->orWhereNull('yml_file_id')
@@ -400,7 +447,7 @@ class ProductImportParserActionsManager
      */
     public static function otherProducts($ymlFileId)
     {
-        if(siteconf()->get("product-import","xml-product-import-type") === "modify") return;
+        if(base_config()->get("product-import","xml-product-import-type") === "modify") return;
         $otherProducts = Product::query()
             ->where('yml_file_id', "!=", $ymlFileId)
             ->orWhereNull('yml_file_id')

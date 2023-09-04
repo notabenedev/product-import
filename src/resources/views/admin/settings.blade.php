@@ -454,13 +454,37 @@
                 </div>
                 @enderror
 
-                <label class="text-secondary my-2" for="xmlVariation">xml элемент Предложения</label>
+                <label class="text-secondary my-2" for="xmlVariations">xml элемент Предложениий</label>
                 <input type="text"
-                       id="xmlVariation"
-                       name="data-xml-variation"
-                       value="{{ old("xml-variation", base_config()->get($name, "xml-variation", "product-import")) }}"
-                       class="form-control @error("xml-variation") is-invalid @enderror">
-                @error("xml-variation")
+                       id="xmlVariations"
+                       name="data-xml-variations"
+                       value="{{ old("xml-variations", base_config()->get($name, "xml-variations", "product-import")) }}"
+                       class="form-control @error("xml-variations") is-invalid @enderror">
+                @error("xml-variations")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlVariationProductId">xml элемент id Предложения</label>
+                <input type="text"
+                       id="xmlVariationProductId"
+                       name="data-xml-variation-product-id"
+                       value="{{ old("xml-variation-product-id", base_config()->get($name, "xml-variation-product-id", "")) }}"
+                       class="form-control @error("xml-variation-product-id") is-invalid @enderror">
+                @error("xml-variation-product-id")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlVariationProductTitle">xml элемент заголовок Предложения</label>
+                <input type="text"
+                       id="xmlVariationProductTitle"
+                       name="data-xml-variation-product-title"
+                       value="{{ old("xml-variation-product-title", base_config()->get($name, "xml-variation-product-title", "")) }}"
+                       class="form-control @error("xml-variation-product-title") is-invalid @enderror">
+                @error("xml-variation-product-title")
                 <div class="invalid-feedback" role="alert">
                     {{ $message }}
                 </div>
@@ -478,13 +502,25 @@
                 </div>
                 @enderror
 
-                <label class="text-secondary my-2" for="xmlVariationPriceElement">xml элемент Описания Цены</label>
+                <label class="text-secondary my-2" for="xmlVariationPriceElement">xml элемент Цены</label>
                 <input type="text"
                        id="xmlVariationPriceElement"
                        name="data-xml-variation-price-element"
-                       value="{{ old("xml-variation-price-element", base_config()->get($name, "xml-variation-price-element", "product-import")) }}"
+                       value="{{ old("xml-variation-price-element", base_config()->get($name, "xml-variation-price-element")) }}"
                        class="form-control @error("xml-variation-price-element") is-invalid @enderror">
                 @error("xml-variation-price-element")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlVariationPriceDesc">xml элемент Описания Цены</label>
+                <input type="text"
+                       id="xmlVariationPriceDesc"
+                       name="data-xml-variation-price-desc"
+                       value="{{ old("xml-variation-price-desc", base_config()->get($name, "xml-variation-price-desc", "")) }}"
+                       class="form-control @error("xml-variation-price-desc") is-invalid @enderror">
+                @error("xml-variation-price-desc")
                 <div class="invalid-feedback" role="alert">
                     {{ $message }}
                 </div>
@@ -497,6 +533,30 @@
                        value="{{ old("xml-variation-price", base_config()->get($name, "xml-variation-price", "product-import")) }}"
                        class="form-control @error("xml-variation-price") is-invalid @enderror">
                 @error("xml-variation-price")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlVariationOldPrice">xml элемент Старой Цены </label>
+                <input type="text"
+                       id="xmlVariationOldPrice"
+                       name="data-xml-variation-old-price"
+                       value="{{ old("xml-variation-old-price", base_config()->get($name, "xml-variation-old-price", "")) }}"
+                       class="form-control @error("xml-variation-old-price") is-invalid @enderror">
+                @error("xml-variation-old-price")
+                <div class="invalid-feedback" role="alert">
+                    {{ $message }}
+                </div>
+                @enderror
+
+                <label class="text-secondary my-2" for="xmlVariationCount">xml элемент Количества </label>
+                <input type="text"
+                       id="xmlVariationCount"
+                       name="data-xml-variation-сount"
+                       value="{{ old("xml-variation-сount", base_config()->get($name, "xml-variation-сount", "")) }}"
+                       class="form-control @error("xml-variation-сount") is-invalid @enderror">
+                @error("xml-variation-сount")
                 <div class="invalid-feedback" role="alert">
                     {{ $message }}
                 </div>

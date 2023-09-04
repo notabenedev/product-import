@@ -50,15 +50,15 @@ class ProcessCategory implements ShouldQueue
         $category =  simplexml_load_string($this->group, \SimpleXMLElement::class,LIBXML_NOBLANKS | LIBXML_ERR_NONE);
         if (empty($category))   return;
 
-        if (siteconf()->get("product-import", "xml-category-id-type") == "attribute" &&
-            siteconf()->get("product-import", "xml-category-parent-type") == "attribute") {
+        if (base_config()->get("product-import", "xml-category-id-type") == "attribute" &&
+            base_config()->get("product-import", "xml-category-parent-type") == "attribute") {
             $id = null;
             $title = $category;
             foreach ($category->attributes() as $attribute => $value) {
-                if ($attribute == siteconf()->get("product-import","xml-category-id")){
+                if ($attribute == base_config()->get("product-import","xml-category-id")){
                     $id = $value;
                 }
-                if ($attribute == siteconf()->get("product-import","xml-category-parent-attribute")){
+                if ($attribute == base_config()->get("product-import","xml-category-parent-attribute")){
                     $this->parent = $value;
                 }
             }
@@ -70,14 +70,14 @@ class ProcessCategory implements ShouldQueue
                 "ymlFileId" => $this->ymlFileId,
                 "picture" => null,
             ];
-        } elseif (siteconf()->get("product-import", "xml-category-parent-type") == "element-tree")
+        } elseif (base_config()->get("product-import", "xml-category-parent-type") == "element-tree")
         {
-            $id = $category[0]->{siteconf()->get("product-import","xml-category-id")};
-            $title = $category[0]->{siteconf()->get("product-import","xml-category-element-tree-name")};
-            if (! siteconf()->get("product-import","xml-category-element-tree-picture-add")){
+            $id = $category[0]->{base_config()->get("product-import","xml-category-id")};
+            $title = $category[0]->{base_config()->get("product-import","xml-category-element-tree-name")};
+            if (! base_config()->get("product-import","xml-category-element-tree-picture-add")){
                 try {
                     $picture = $category[0]
-                        ->{siteconf()->get("product-import","xml-category-element-tree-picture")};
+                        ->{base_config()->get("product-import","xml-category-element-tree-picture")};
                 }
                 catch (\Exception $e){
                     $picture = null;
@@ -86,8 +86,8 @@ class ProcessCategory implements ShouldQueue
             else
                 try {
                     $picture = $category[0]
-                        ->{siteconf()->get("product-import","xml-category-element-tree-picture")}[0]
-                        ->{siteconf()->get("product-import","xml-category-element-tree-picture-add")};
+                        ->{base_config()->get("product-import","xml-category-element-tree-picture")}[0]
+                        ->{base_config()->get("product-import","xml-category-element-tree-picture-add")};
                 }
                 catch (\Exception $e){
                     $picture = null;
@@ -132,7 +132,7 @@ class ProcessCategory implements ShouldQueue
         $model->yml_file_id = $this->ymlFileId;
         $model->published_at = now();
         if($this->category->picture)
-            if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
+            if ( base_config()->get("product-import","xml-picture-import-type") == "base64"){
                 try{
                     $model->uploadBase64Image($this->category->picture, "categories");
                 }

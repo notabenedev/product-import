@@ -6,6 +6,7 @@ namespace Notabenedev\ProductImport\Jobs;
 use App\Category;
 use App\Product;
 use App\ProductSpecification;
+use App\ProductVariation;
 use App\Specification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,6 +25,7 @@ class ProcessProduct implements ShouldQueue
 
     protected object $product;
     protected string $group;
+    protected $price;
     protected $props;
     protected int|null $ymlFileId;
 
@@ -39,6 +41,7 @@ class ProcessProduct implements ShouldQueue
         $this->group = $group;
         $this->ymlFileId = $ymlFileId;
         $this->props = $props;
+        $this->price = null;
     }
 
     /**
@@ -55,37 +58,37 @@ class ProcessProduct implements ShouldQueue
         $id = null;
         $store = null;
         $code = null;
-        if (siteconf()->get("product-import", "xml-product-id-type") == "attribute" ||
-            siteconf()->get("product-import", "xml-code-type") == "product-attribute") {
+        if (base_config()->get("product-import", "xml-product-id-type") == "attribute" ||
+            base_config()->get("product-import", "xml-code-type") == "product-attribute") {
             foreach ($product->attributes() as $attribute => $value) {
                 switch ($attribute){
-                    case siteconf()->get("product-import","xml-product-id"):
+                    case base_config()->get("product-import","xml-product-id"):
                         $id = $value;
                         break;
-                    case siteconf()->get("product-import","xml-code"):
+                    case base_config()->get("product-import","xml-code"):
                         $code = $value;
                         break;
                 }
             }
         }
         else{
-            $id = $product[0]->{siteconf()->get("product-import","xml-category-id")};
+            $id = $product[0]->{base_config()->get("product-import","xml-category-id")};
         }
 
-        if (siteconf()->get("product-import", "xml-code-type") == "product-element")
-            $code = $product[0]->{siteconf()->get("product-import","xml-code")};
+        if (base_config()->get("product-import", "xml-code-type") == "product-element")
+            $code = $product[0]->{base_config()->get("product-import","xml-code")};
 
-        $categoryId = $product[0]->{siteconf()->get("product-import","xml-product-category-id")};
-        if (! empty(siteconf()->get("product-import", "xml-product-category-id-add")))
-            $categoryId = $categoryId[0]->{siteconf()->get("product-import", "xml-product-category-id-add")};
+        $categoryId = $product[0]->{base_config()->get("product-import","xml-product-category-id")};
+        if (! empty(base_config()->get("product-import", "xml-product-category-id-add")))
+            $categoryId = $categoryId[0]->{base_config()->get("product-import", "xml-product-category-id-add")};
 
-        $title = $product[0]->{siteconf()->get("product-import","xml-product-name")};
-        $description = $product[0]->{siteconf()->get("product-import","xml-product-description")};
+        $title = $product[0]->{base_config()->get("product-import","xml-product-name")};
+        $description = $product[0]->{base_config()->get("product-import","xml-product-description")};
 
-        if (! siteconf()->get("product-import","xml-product-picture-add")){
+        if (! base_config()->get("product-import","xml-product-picture-add")){
             try {
                 $picture = $product[0]
-                        ->{siteconf()->get("product-import","xml-product-picture")};
+                        ->{base_config()->get("product-import","xml-product-picture")};
                 }
                 catch (\Exception $e){
                     $picture = null;
@@ -95,8 +98,8 @@ class ProcessProduct implements ShouldQueue
         {
             try {
                 $picture = $product[0]
-                    ->{siteconf()->get("product-import","xml-product-picture")}[0]
-                    ->{siteconf()->get("product-import","xml-product-picture-add")};
+                    ->{base_config()->get("product-import","xml-product-picture")}[0]
+                    ->{base_config()->get("product-import","xml-product-picture-add")};
             }
             catch (\Exception $e){
                 $picture = null;
@@ -104,16 +107,16 @@ class ProcessProduct implements ShouldQueue
         }
 
         $productProps = [];
-        switch (siteconf()->get("product-import","xml-prop-type")){
+        switch (base_config()->get("product-import","xml-prop-type")){
             case "list":
-                if (!empty($product[0]->{siteconf()->get("product-import","xml-prop-group")})) {
-                    foreach ($product[0]->{siteconf()->get("product-import","xml-prop-group")}->children() as $prop) {
-                        $propId = ! empty($prop->{siteconf()->get("product-import","xml-prop-id")}) ?
-                            $prop->{siteconf()->get("product-import","xml-prop-id")}->__toString() : null;
+                if (!empty($product[0]->{base_config()->get("product-import","xml-prop-group")})) {
+                    foreach ($product[0]->{base_config()->get("product-import","xml-prop-group")}->children() as $prop) {
+                        $propId = ! empty($prop->{base_config()->get("product-import","xml-prop-id")}) ?
+                            $prop->{base_config()->get("product-import","xml-prop-id")}->__toString() : null;
                         if (empty($propId)) continue;
 
-                        $propValue = ! empty($prop->{siteconf()->get("product-import","xml-prop-value")}) ?
-                            trim(mb_strtolower($prop->{siteconf()->get("product-import","xml-prop-value")}->__toString())) : null;
+                        $propValue = ! empty($prop->{base_config()->get("product-import","xml-prop-value")}) ?
+                            trim(mb_strtolower($prop->{base_config()->get("product-import","xml-prop-value")}->__toString())) : null;
                         if (empty($propValue)) continue;
                         $productProps[$propId] = $propValue;
                     }
@@ -133,10 +136,10 @@ class ProcessProduct implements ShouldQueue
                 }
                 break;
             case "param":
-                if (!empty($product[0]->{siteconf()->get("product-import","xml-prop")})) {
-                    foreach ($product[0]->{siteconf()->get("product-import","xml-prop")} as $prop) {
+                if (!empty($product[0]->{base_config()->get("product-import","xml-prop")})) {
+                    foreach ($product[0]->{base_config()->get("product-import","xml-prop")} as $prop) {
                         foreach ($prop->attributes() as $attribute => $value){
-                            if ($attribute == siteconf()->get("product-import","xml-prop-value")){
+                            if ($attribute == base_config()->get("product-import","xml-prop-value")){
                                 $propId = $value->__toString();
                                 $propValue = trim(mb_strtolower($prop[0]->__toString()));
                                 if (empty($propId)) continue;
@@ -151,6 +154,16 @@ class ProcessProduct implements ShouldQueue
                 break;
         }
 
+        if (base_config()->get("product-import","xml-variation-type") == "product"){
+            $price["price"] = isset($product[0]->{base_config()->get("product-import","xml-product-price")}) ?
+                $product[0]->{base_config()->get("product-import","xml-product-price")} : null;
+            $price["oldPrice"] = isset($product[0]->{base_config()->get("product-import","xml-product-old-price")}) ?
+                $product[0]->{base_config()->get("product-import","xml-product-old-price")} : null;
+        }
+        else
+        {
+            $price = null;
+        }
 
         $this->product = (object) [
             "id" => ! empty($id) ? $id->__toString() : null,
@@ -162,6 +175,7 @@ class ProcessProduct implements ShouldQueue
             "code" => ! empty($code) ? $code->__toString(): null,
             "description" => ! empty($description) ? $description->__toString(): null,
             "props" => $productProps,
+            "price" => $price,
         ];
 
         list($product,$category) = $this->importItem();
@@ -171,6 +185,21 @@ class ProcessProduct implements ShouldQueue
 
         if (! empty($product)) {
             $this->importSpecifications($product, $category);
+            $this->importVariations($product);
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @return void
+     */
+    protected function importVariations(Product $product){
+        if (base_config()->get("product-import","xml-variation-type") == "product") {
+            $forDelete = $product->variations()->get();
+            foreach ($forDelete as $item) {
+                $item->delete();
+            }
+            $this->createProductVariation($product);
         }
     }
 
@@ -217,7 +246,7 @@ class ProcessProduct implements ShouldQueue
             $model->published_at = now();
 
         if($this->product->picture)
-            if ( siteconf()->get("product-import","xml-picture-import-type") == "base64"){
+            if ( base_config()->get("product-import","xml-picture-import-type") == "base64"){
                 try{
                     $model->uploadBase64GalleryImage($this->product->picture, "gallery/products");
                 }
@@ -251,7 +280,7 @@ class ProcessProduct implements ShouldQueue
                 ->get();
         }
         else {
-            if (siteconf()->get("product-import","xml-prop-type") !== "list") {
+            if (base_config()->get("product-import","xml-prop-type") !== "list") {
                 $forDelete = $product->specifications()
                     ->get();
                 $changedSpecsIds = $this->createOrUpdateProductProps($product, $category);
@@ -349,7 +378,7 @@ class ProcessProduct implements ShouldQueue
      */
     protected function createOrUpdateSpecifications(string $id)
     {
-        switch (siteconf()->get("product-import","xml-prop-type")){
+        switch (base_config()->get("product-import","xml-prop-type")){
             case "list":
                 if (empty($this->props[$id]))
                     return null;
@@ -401,5 +430,28 @@ class ProcessProduct implements ShouldQueue
         }
 
         return $specification;
+    }
+
+    /**
+     * @param Product $product
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    protected function createProductVariation(Product $product)
+    {
+        $price = ! empty($this->product->price["price"]) ? $this->product->price["price"] : null;
+        $oldPrice = ! empty($this->product->price["oldPrice"]) ? $this->product->price["oldPrice"] : null;
+        $sale = (!empty($oldPrice) && (floatval($oldPrice) > floatval($price))) ? 1 : 0;
+        if (! $price) return null;
+        try {
+            $productVariation = $product->variations()->create([
+                "price" => $price,
+                "sale_price" => $oldPrice,
+                "sale" => $sale,
+            ]);
+            $productVariation->save();
+            return  $productVariation;
+        } catch (\Exception $exception) {
+               return null;
+        }
     }
 }
