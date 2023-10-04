@@ -68,7 +68,7 @@ class ProductImportParserActionsManager
 
         switch ($file->type) {
             case "catalog":  case "import": {
-            $this->prepareImport();
+                $this->prepareImport();
             }
 
             case "offers":
@@ -290,10 +290,10 @@ class ProductImportParserActionsManager
         $this->props = [];
         switch (base_config()->get("product-import","xml-prop-type")){
             case "list": case "list-element":
-                if (empty($this->import->{base_config()->get("product-import","xml-prop-list-root")})) return;
+                if (empty($this->import->{base_config()->get("product-import","xml-prop-list-root")})) {return;}
                 $loop = 0;
                 foreach ($this->import->{base_config()->get("product-import","xml-prop-list-root")}[0]->children() as $item){
-                    if (base_config()->get("product-import","xml-prop-type" == "list-element")){
+                    if (base_config()->get("product-import","xml-prop-type") == "list-element"){
                         $propId = ! empty($item) ?  str_replace(" ", "", $item->__toString()): null;
                         $propValue= ! empty($item) ? $item->__toString() : null;
                     }

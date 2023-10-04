@@ -26,7 +26,7 @@ class ProcessProduct implements ShouldQueue
     protected object $product;
     protected string $group;
     protected $price;
-    protected $props;
+    protected array $props;
     protected int|null $ymlFileId;
 
     /**
@@ -119,6 +119,7 @@ class ProcessProduct implements ShouldQueue
                             trim(mb_strtolower($prop->{base_config()->get("product-import","xml-prop-value")}->__toString())) : null;
                         if (empty($propValue)) continue;
                         $productProps[$propId] = $propValue;
+                        //Log::info($propId."-".$propValue);
                     }
                 }
                 break;
@@ -288,11 +289,10 @@ class ProcessProduct implements ShouldQueue
             else {
                 // удаляем недобавленные спецификации
                 $changedSpecsIds = $this->createOrUpdateProductProps($product, $category);
-                $forDelete = $product->specifications()
-                    ->whereNotIn("id", $changedSpecsIds)
-                    ->get();
+               $forDelete = $product->specifications()->whereNotIn("id", $changedSpecsIds)->get();
             }
         }
+
 
         foreach ($forDelete as $item) {
             $item->delete();
@@ -309,11 +309,13 @@ class ProcessProduct implements ShouldQueue
         $productSpecs = [];
         foreach ($this->product->props as $id => $value) {
             // обновляем или создаем характиристику в таблице Specifications и в Категориях
-            if (!$specification = $this->createOrUpdateSpecifications($id)) continue;
-            $this->attachCategorySpecification($category, $specification);
+            $specification = $this->createOrUpdateSpecifications($id);
 
+            if (empty( $specification)) continue;
+            $this->attachCategorySpecification($category, $specification);
             // check and  update or create specification
             $productSpecification = $this->setProductSpecValue($product, $category, $specification, $value);
+            //Log::info($productSpecification);
             $productSpecs[] = $productSpecification->id;
         }
         return $productSpecs;
