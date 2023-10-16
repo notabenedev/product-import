@@ -21,7 +21,10 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
                     {--vue : Export vue components}
                     {--models : Export models}
                     {--controllers : Export controllers}
-                    {--jobs : Export jobs}';
+                    {--policies : Export and create rules} 
+                    {--only-default : Create only default rules}
+                    {--jobs : Export jobs}
+                    {--menu : create admin menu}';
 
     /**
      * The console command description.
@@ -33,7 +36,7 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
     protected $packageName = "ProductImport";
 
     protected $configName = "product-import";
-    protected $configTitle = "Настройки импорта каталога";
+    protected $configTitle = "Импорт Каталога";
     protected $configTemplate = "product-import::admin.settings";
     protected $configValues = [
         'xml-root' => 'yml_catalog',
@@ -105,6 +108,18 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
      */
     protected $models = ["ImportYml", "YmlFile"];
 
+    /**
+     * Policies
+     * @var array
+     *
+     */
+    protected $ruleRules = [
+        [
+            "title" => "Импорт Каталога",
+            "slug" => "product-import",
+            "policy" => "ImportYmlPolicy",
+        ],
+    ];
     /**
      * Make Controllers
      */
@@ -181,6 +196,10 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
             $this->exportModels();
         }
 
+        if ($this->option("policies") || $all) {
+            $this->makeRules();
+        }
+
         if ($this->option("controllers") || $all) {
              $this->exportControllers("Admin");
         }
@@ -195,6 +214,10 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
 
         if ($this->option("vue") || $all) {
             $this->makeVueIncludes("admin");
+        }
+
+        if ($this->option("menu") || $all) {
+            $this->makeMenu();
         }
 
     }
@@ -243,5 +266,45 @@ class ProductImportMakeCommand extends BaseConfigModelCommand
             [$this->vendorName, $this->getAppNamespace(), $this->packageName, $job],
             file_get_contents(__DIR__ . "/stubs/jobs/StubJob.stub")
         );
+    }
+
+    /**
+     * Make menu
+     *
+     * @return void
+     */
+    protected function makeMenu()
+    {
+        try {
+            $menu = Menu::query()
+                ->where('key', 'admin')
+                ->firstOrFail();
+        }
+        catch (\Exception $e) {
+            return;
+        }
+
+        $title = "Импорт Каталога";
+
+        $itemData = [
+            'title' => $title,
+            'template' => "product-import::admin.menu",
+            'url' => "#",
+            'ico' => 'fa-solid fa-file-import',
+            'menu_id' => $menu->id,
+        ];
+
+        try {
+            $menuItem = MenuItem::query()
+                ->where("menu_id", $menu->id)
+                ->where('title', $title)
+                ->firstOrFail();
+            $menuItem->update($itemData);
+            $this->info("Элемент меню '$title' обновлен");
+        }
+        catch (\Exception $e) {
+            MenuItem::create($itemData);
+            $this->info("Элемент меню '$title' создан");
+        }
     }
 }

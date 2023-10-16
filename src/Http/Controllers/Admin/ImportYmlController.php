@@ -58,51 +58,7 @@ class ImportYmlController extends Controller
 
 
     /**
-     * Запускаем очередь импорта (вручную)
-     *
-     * @param YmlFile $file
-     * @return RedirectResponse
-     */
-    public function run(YmlFile $file)
-    {
-        if (ProductImportParserActions::getJobsCount())
-            return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
-
-        $file->started_at = now();
-        $file->save();
-
-        ProductImportParserActions::parseFile($file);
-        return redirect()->back()->with("success", "Файл выгрузки помещен в очередь");
-
-    }
-
-    /**
-     * Скрыть категории и товары вне выгрузки (вручную)
-     *
-     * @param YmlFile $file
-     * @return RedirectResponse
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function other(YmlFile $file)
-    {
-        if (siteconf()->get("product-import", "xml-category-import-type") == "full"){
-            if (ProductImportParserActions::getJobsCount())
-                return redirect()->back()->with("danger", "Очередь выгрузок не пустая. Попробуйте позже.");
-
-            $file->full_import_at = now();
-            $file->save();
-
-            ProductImportParserActions::otherCategories($file->id);
-            return redirect()->back()->with("success", "Очередь на скрытие отстутвующих сущностей запущена");
-        }
-        else{
-            return redirect()->back()->with("danger", "Настройки импорта не предусматривают полную выгрузку категорий");
-        }
-    }
-
-    /**
-     * Отзывчиваяк нопка run & other (запуск импорта через компонент - спиннер)
+     * Отзывчивая кнопка run & other (запуск импорта через компонент - спиннер)
      *
      * @param YmlFile $file
      * @return \Illuminate\Http\JsonResponse|RedirectResponse

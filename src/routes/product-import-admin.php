@@ -22,13 +22,5 @@ Route::group([ ], function () {
     Route::resource("ymls", "ImportYmlController")
         ->only(["index","show","destroy"]);
     });
-    Route::put("ymls/{file}", "ImportYmlController@run")
-        ->name("ymls.run");
-
-    Route::put("ymls-other/{file}", "ImportYmlController@other")
-        ->name("ymls.other");
-
-
-
 
 });

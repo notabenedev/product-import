@@ -12,8 +12,11 @@
                             {--js : export js}
                             {--vue : export vue components}
                             {--models: export models}
+                            {--policies: export rules}
+                            {--only-default: create only default rules}
                             {--controllers: export controllers}
                             {--jobs: export jobs}
+                            {--menu: create menu}
 ## Queue
     - php artisan queue:work --queue=default,processYmlFile,processCategory,processCategoryParent,processProduct,processOffer,processOtherCategory,processOtherProduct
 
