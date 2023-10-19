@@ -2,9 +2,9 @@
     <button type="button"
             @click="runProgress()"
             class="btn btn-warning"
-            :disabled="currentValue == 'success'"
-            :title="title">
-      <span v-if="start == true && currentValue !== 'success'" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            :disabled="currentValue == 'success' || fullImport == 1"
+            :title="started">
+      <span v-if="progress == true && currentValue !== 'success'" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       <i v-else v-bind:class="currentValue == 'success' ? 'fas fa-check' : 'fas fa-play'"></i>
     </button>
 
@@ -16,7 +16,7 @@ export default {
     name: "ProgressSpinnerComponent",
 
     props: {
-      title: {
+      started: {
         type: String,
         required: true
       },
@@ -24,6 +24,10 @@ export default {
             type: String,
             required: true
         },
+      fullImport: {
+        type: Boolean,
+        required: false
+      }
     },
 
     created() {
@@ -34,14 +38,14 @@ export default {
     data(){
         return {
             currentValue: 0,
-          start: false
+          progress: false
         }
     },
 
     methods: {
         runProgress(){
           this.getCurrentProgress();
-          this.start = true;
+          this.progress = true;
           setInterval(this.getCurrentProgress, 1000)
         },
         getCurrentProgress() {
@@ -51,7 +55,7 @@ export default {
                     let data = response.data;
                     this.currentValue = data.answer;
                     if (data.answer == "success")
-                      this.start =false;
+                      this.progress =false;
                 })
         }
     }

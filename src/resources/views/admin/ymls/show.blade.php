@@ -34,9 +34,10 @@
                                 <td>
                                     @can('import',\App\ImportYml::class)
                                     <div role="toolbar" class="btn-toolbar">
-                                        <div class="btn-group mr-1{{ $item->started_at ? " d-none" : ""  }}">
+                                        <div class="btn-group mr-1">
                                             <progress-spinner get-progress="{{ route("admin.ymls.progress",['file' => $item]) }}"
-                                                                  title="{{ $item->started_at }}"
+                                                                  strated="{{ $item->started_at }}"
+                                                              full-import="{{ empty($item->full_import_at) ? 0 : 1 }}"
                                             >
                                             </progress-spinner>
                                         </div>
@@ -45,9 +46,11 @@
                                         @isset($item->started_at)
                                             Запущена: {{ $item->started_at }}<br>
                                         @endisset
-                                        @isset($item->full_import_at)
+                                        @if(isset($item->full_import_at))
                                             Полная выгрузка: {{ $item->full_import_at }}
-                                        @endisset
+                                            @elseif (isset($item->updated_at) && isset($item->started_at))
+                                            Выполнена: {{ $item->updated_at }}
+                                        @endif
                                 </td>
                             </tr>
                         @endforeach

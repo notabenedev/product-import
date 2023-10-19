@@ -151,6 +151,8 @@ class ProductImportParserActionsManager
                     return ProductImportProtocolActions::answer("success");
             }
             else{
+                $file->full_import_at = now();
+                $file->save();
                 return ProductImportProtocolActions::answer("success");
             }
         }

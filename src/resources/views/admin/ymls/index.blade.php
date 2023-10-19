@@ -12,14 +12,14 @@
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">
-                        <h2>Загрузить файл</h2>
+                        <h2>Загрузить файл YML|XML</h2>
                         <label for="fileInput">Выберите файл YML|XML:</label>
                         <form name="yml" enctype="multipart/form-data" method="post" action="{{ route("admin.ymls.load") }}">
                             @csrf
                             <div class="form-group d-flex">
-                                <select name="type">
-                                    <option value="catalog" selected>Весь каталог</option>
-                                </select>
+{{--                                <select name="type">--}}
+{{--                                    <option value="catalog" selected>Весь каталог</option>--}}
+{{--                                </select>--}}
                                 <input type="hidden" class="form-control" name="filename" placeholder="Имя файла" id="fileName">
                             </div>
                             <div class="form-group d-flex">

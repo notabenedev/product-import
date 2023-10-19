@@ -3,7 +3,6 @@
 namespace Notabenedev\ProductImport;
 
 use Illuminate\Support\ServiceProvider;
-use Notabenedev\ProductImport\Console\Commands\ProductImportInitCommand;
 use Notabenedev\ProductImport\Console\Commands\ProductImportMakeCommand;
 
 class ProductImportServiceProvider extends ServiceProvider
@@ -37,7 +36,6 @@ class ProductImportServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ProductImportMakeCommand::class,
-                ProductImportInitCommand::class,
             ]);
         }
 

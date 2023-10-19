@@ -41,6 +41,7 @@ class ProductImportProtocolActionsManager
         if (! $this->type || ! $this->mode) return $this->failure("Not enough params");
 
         switch ($this->mode) {
+            // load file from admin interface
             case "form":
                 if ( $check = ProductImportAuthActions::checkAuthUser() !== true)
                     return $check;
@@ -48,8 +49,9 @@ class ProductImportProtocolActionsManager
                 $answer = $this->translateAnswer(ProductImportLoadFileActions::modeLoadFile($yml, true));
                 if ($answer !== "success\n")
                    return redirect()->back()->with("danger", $answer);
-                return redirect()->back()->with("success", "Файл импорта загружен!");
+                return redirect()->route("admin.ymls.show",["yml" => $yml])->with("success", "Файл импорта загружен!");
 
+            // api params
             case "checkauth":
                 $check =  ProductImportAuthActions::checkAuthUser();
                 if ($check !== true)

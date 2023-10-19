@@ -43,8 +43,9 @@ class ProcessOffer implements ShouldQueue
         $id = ! empty($offer[0]->{base_config()->get("product-import","xml-variation-product-id")}) ?
             $offer[0]->{base_config()->get("product-import","xml-variation-product-id")} : null;
 
-        $count = ! empty($offer[0]->{base_config()->get("product-import","xml-variation-count")}) ?
-            (int) $offer[0]->{base_config()->get("product-import","xml-variation-count")} : null;
+        $countStr = empty($offer[0]->{base_config()->get("product-import","xml-variation-count")}) ?
+             null : $offer[0]->{base_config()->get("product-import","xml-variation-count")};
+        $count =  ($countStr == null) ? null : intval($countStr);
 
         switch (base_config()->get("product-import","xml-code-type")){
             case "product-element": case "product-attribute": default:
@@ -91,7 +92,7 @@ class ProcessOffer implements ShouldQueue
             "price" => $price,
             "oldPrice" => $oldPrice,
             "sale" => $sale,
-            "count" => $count,
+            "disabled_at" => ($count == 0) ? now() : null,
             "code" => $code,
         ];
 
@@ -115,7 +116,6 @@ class ProcessOffer implements ShouldQueue
     {
         $variationData = $this->prepareVariationData($product);
         if (empty($variationData["price"])) return null;
-
         try {
             //получаем первую и единственную вариацию из модели
             $productVariation = $product->variations()->firstOrFail();

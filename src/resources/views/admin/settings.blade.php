@@ -216,7 +216,7 @@
                         Полная выгрузка: скрытие всех отстутствующих товаров
                     </option>
                     <option value="modify" {{ old("xml-product-import-type", base_config()->get($name, "xml-product-import-type", "modify")) == "modify" ? " selected" : "" }}>
-                        Только изменения (изменение переданных категорий)
+                        Только изменения (изменение переданных товаров)
                     </option>
                 </select>
             </div>

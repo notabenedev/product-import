@@ -90,4 +90,15 @@ class YmlFile extends Model
     {
         return datehelper()->changeTz($value);
     }
+
+    /**
+     * Изменить дату обновления
+     *
+     * @param $value
+     * @return string
+     */
+    public function getUpdatedAtAttribute($value)
+    {
+        return datehelper()->changeTz($value);
+    }
 }
