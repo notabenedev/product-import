@@ -45,7 +45,7 @@ class ProcessOffer implements ShouldQueue
 
         $countStr = empty($offer[0]->{base_config()->get("product-import","xml-variation-count")}) ?
              null : $offer[0]->{base_config()->get("product-import","xml-variation-count")};
-        $count =  ($countStr == null) ? null : intval($countStr);
+        $count =  ! isset($countStr) ? null : intval($countStr);
 
         switch (base_config()->get("product-import","xml-code-type")){
             case "product-element": case "product-attribute": default:
@@ -56,7 +56,7 @@ class ProcessOffer implements ShouldQueue
                     (int) $offer[0]->{base_config()->get("product-import","xml-code")} : null;
                 break;
             case "etc":
-                $code = ! empty($offer[0]->{base_config()->get("product-import","xml-code")}) ?
+                $code = ! empty(base_config()->get("product-import","xml-code")) ?
                     base_config()->get("product-import","xml-code") : null;
                 break;
         }
@@ -92,7 +92,7 @@ class ProcessOffer implements ShouldQueue
             "price" => $price,
             "oldPrice" => $oldPrice,
             "sale" => $sale,
-            "disabled_at" => ($count == 0) ? now() : null,
+            "count" => $count,
             "code" => $code,
         ];
 
@@ -140,9 +140,10 @@ class ProcessOffer implements ShouldQueue
     {
         $price = ! empty($this->offer->price) ? $this->offer->price : $this->offer->oldPrice;
         $code = !empty($this->offer->code) ? $this->offer->code : $product->import_code;
+        $disabled_at = (isset($this->offer->count) && $this->offer->count == 0) ? now() : null;
         return [
             "description" => $this->offer->title,
-            "disabled_at" => ! empty($this->offer->count) && $this->offer->count == 0 ? now() : null,
+            "disabled_at" => $disabled_at,
             "sku" => $code,
             "price" => $price,
             "sale_price" => $this->offer->oldPrice,

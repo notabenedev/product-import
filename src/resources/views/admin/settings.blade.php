@@ -553,10 +553,10 @@
                 <label class="text-secondary my-2" for="xmlVariationCount">xml элемент Количества </label>
                 <input type="text"
                        id="xmlVariationCount"
-                       name="data-xml-variation-сount"
-                       value="{{ old("xml-variation-сount", base_config()->get($name, "xml-variation-сount", "")) }}"
-                       class="form-control @error("xml-variation-сount") is-invalid @enderror">
-                @error("xml-variation-сount")
+                       name="data-xml-variation-count"
+                       value="{{ old("xml-variation-сount", base_config()->get($name, "xml-variation-count", "")) }}"
+                       class="form-control @error("xml-variation-count") is-invalid @enderror">
+                @error("xml-variation-count")
                 <div class="invalid-feedback" role="alert">
                     {{ $message }}
                 </div>
