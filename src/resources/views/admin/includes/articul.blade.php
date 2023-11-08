@@ -1,5 +1,5 @@
 <div class="form-group">
-    <h3>Артикул</h3>
+    <h4 class="mt-3">Артикул</h4>
     <div class="form-group form-row">
         <div class="col-6">
             <label class="text-secondary my-2" for="xmlCodeType">Расположение Артикула</label>

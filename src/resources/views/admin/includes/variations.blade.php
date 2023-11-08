@@ -1,4 +1,4 @@
-<h4>Цены</h4>
+<h4 class="mt-3">Цены</h4>
 <label class="text-secondary my-2" for="xmlVariationType">Расположение цены</label>
 <select type="text"
         id="xmlVariationType"

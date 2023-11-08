@@ -1,5 +1,5 @@
 
-    <h4>Категории</h4>
+    <h4 class="mt-3">Категории</h4>
 
     <div class="form-group">
         <label class="text-secondary my-2" for="xmlCategoryImportType">Тип импорта категорий</label>
@@ -111,7 +111,7 @@
             {{ $message }}
         </div>
         @enderror
-        <div id="xmlCategoryParentAttributeBlock">
+        <div id="xmlCategoryParentAttributeBlock" class="mt-3">
             <label class="text-secondary my-2" for="xmlCategoryParentAttribute">Атрибут Родительской Категории</label>
             <input type="text"
                    id="xmlCategoryParentAttribute"
@@ -124,7 +124,7 @@
             </div>
             @enderror
         </div>
-        <div id="xmlCategoryElementTreeBlock">
+        <div id="xmlCategoryElementTreeBlock" class="mt-3">
             <div class="form-group">
                 <h5>Элементы Категории</h5>
 

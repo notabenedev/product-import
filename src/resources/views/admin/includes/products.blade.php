@@ -1,4 +1,4 @@
-<h4>Товары</h4>
+<h4 class="mt-3">Товары</h4>
 <div class="form-group">
     <label class="text-secondary my-2" for="xmlProductImportType">Тип импорта товаров</label>
     <select type="text"

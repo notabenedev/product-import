@@ -1,5 +1,8 @@
 <div class="form-group">
-    <h3>YML settings</h3>
+    <h3>
+        <a href="#" onclick="cmlSettings()" title="Сгенерировать настройки для CML">CML</a> |
+        <a href="#" onclick="ymlSettings()" title="Сгенерировать настройки для YML">YML</a>  settings
+    </h3>
 </div>
 
 <div class="form-group">
@@ -73,3 +76,145 @@
 
     </div>
 </div>
+@push('js-lib')
+    <script type="text/javascript">
+       function cmlSettings(){
+            let array = new Map ([
+                ["xmlRoot" , "Классификатор"],
+                ["xmlPictureImportType" , "href"],
+
+                ["xmlCategoryImportType" , "modify"],
+                ["xmlCategoriesRoot" , "Группы"],
+                ["xmlCategoriesRootAdd" , "Группы"],
+                ["xmlCategory" , "Группа"],
+                ["xmlCategoryIdType" , "element"],
+                ["xmlCategoryId" , "Ид"],
+                ["xmlCategoryParentType" , "element-tree"],
+                ["xmlCategoryParentAttribute" , ""],
+                ["xmlCategoryElementTreeName" , "Наименование"],
+                ["xmlCategoryElementTreePicture" , ""],
+                ["xmlCategoryElementTreePictureAdd" , ""],
+
+                ["xmlProductImportType" , "modify"],
+                ["xmlRootProductSelect" , "root-product"],
+                ["xmlRootProduct" , "Каталог"],
+                ["xmlProductsRoot" , "Товары"],
+                ["xmlProduct" , "Товар"],
+                ["xmlProductIdType" , "element"],
+                ["xmlProductId" , "Ид"],
+                ["xmlProductCategoryId" , "Группы"],
+                ["xmlProductCategoryIdAdd" , "Ид"],
+                ["xmlProductName" , "Наименование"],
+                ["xmlProductPicture" , ""],
+                ["xmlProductPictureAdd" , ""],
+                ["xmlProductDescription" , "Описание"],
+                ["xmlProductStore" , ""],
+
+                ["xmlVariationType" , "file"],
+                ["xmlProductPrice" , ""],
+                ["xmlProductOldPrice" , ""],
+                ["xmlVariationsRoot" , "ПакетПредложений"],
+                ["xmlVariations" , "Предложения"],
+                ["xmlVariationProductId" , "Ид"],
+                ["xmlVariationProductTitle" , "Наименование"],
+                ["xmlVariationPrices" , "Цены"],
+                ["xmlVariationPriceElement" , "Цена"],
+                ["xmlVariationPriceDescType" , "price"],
+                ["xmlVariationPriceDesc" , "Единица"],
+                ["xmlVariationPrice" , "ЦенаСайта"],
+                ["xmlVariationOldPrice" , "ЦенаЗаЕдиницу"],
+                ["xmlVariationCount" , "Количество"],
+
+                ["xmlCodeType" , "product-element"],
+                ["xmlCode" , "Артикул"],
+
+                ["xmlPropType" , "list"],
+                ["xmlPropListRoot" , "Свойства"],
+                ["xmlPropListId" , "Ид"],
+                ["xmlPropListName" , "Наименование"],
+                ["xmlPropGroup" , "ЗначенияСвойств"],
+                ["xmlProp" , "ЗначенияСвойства"],
+                ["xmlPropId" , "Ид"],
+                ["xmlPropValue" , "Значение"],
+            ])
+            array.forEach(function(value,key) {
+                document.getElementById(key).value = value;
+            });
+           document.getElementById('xmlCategoryParentAttributeBlock').style.display = "none";
+           document.getElementById('xmlCategoryElementTreeBlock').style.display = "block";
+           document.getElementById('xmlRootProductBlock').style.display = "block";
+           document.getElementById('xmlRootBlock').style.display = "none";
+           document.getElementById('xmlVariationFileBlock').style.display = "block";
+           document.getElementById('xmlVariationProductBlock').style.display = "none";
+        }
+       function ymlSettings() {
+           let array = new Map ([
+               ["xmlRoot" , "shop"],
+               ["xmlPictureImportType" , "href"],
+
+               ["xmlCategoryImportType" , "modify"],
+               ["xmlCategoriesRoot" , "categories"],
+               ["xmlCategoriesRootAdd" , ""],
+               ["xmlCategory" , "category"],
+               ["xmlCategoryIdType" , "attribute"],
+               ["xmlCategoryId" , "id"],
+               ["xmlCategoryParentType" , "attribute"],
+               ["xmlCategoryParentAttribute" , "parentId"],
+               ["xmlCategoryElementTreeName" , ""],
+               ["xmlCategoryElementTreePicture" , ""],
+               ["xmlCategoryElementTreePictureAdd" , ""],
+
+               ["xmlProductImportType" , "modify"],
+               ["xmlRootProductSelect" , "root"],
+               ["xmlRootProduct" , ""],
+               ["xmlProductsRoot" , "offers"],
+               ["xmlProduct" , "offer"],
+               ["xmlProductIdType" , "attribute"],
+               ["xmlProductId" , "id"],
+               ["xmlProductCategoryId" , "categoryId"],
+               ["xmlProductCategoryIdAdd" , ""],
+               ["xmlProductName" , "name"],
+               ["xmlProductPicture" , "picture"],
+               ["xmlProductPictureAdd" , ""],
+               ["xmlProductDescription" , "description"],
+               ["xmlProductStore" , "store"],
+
+               ["xmlVariationType" , "product"],
+               ["xmlProductPrice" , "price"],
+               ["xmlProductOldPrice" , "oldprice"],
+               ["xmlVariationsRoot" , ""],
+               ["xmlVariations" , ""],
+               ["xmlVariationProductId" , ""],
+               ["xmlVariationProductTitle" , ""],
+               ["xmlVariationPrices" , ""],
+               ["xmlVariationPriceElement" , ""],
+               ["xmlVariationPriceDescType" , ""],
+               ["xmlVariationPriceDesc" , ""],
+               ["xmlVariationPrice" , ""],
+               ["xmlVariationOldPrice" , ""],
+               ["xmlVariationCount" , ""],
+
+               ["xmlCodeType" , "product-attribute"],
+               ["xmlCode" , "id"],
+
+               ["xmlPropType" , "param"],
+               ["xmlPropListRoot" , ""],
+               ["xmlPropListId" , ""],
+               ["xmlPropListName" , ""],
+               ["xmlPropGroup" , ""],
+               ["xmlProp" , "param"],
+               ["xmlPropId" , ""],
+               ["xmlPropValue" , "name"],
+           ])
+           array.forEach(function(value,key) {
+               document.getElementById(key).value = value;
+           });
+           document.getElementById('xmlCategoryParentAttributeBlock').style.display = "block";
+           document.getElementById('xmlCategoryElementTreeBlock').style.display = "none";
+           document.getElementById('xmlRootProductBlock').style.display = "none";
+           document.getElementById('xmlRootBlock').style.display = "block";
+           document.getElementById('xmlVariationFileBlock').style.display = "none";
+           document.getElementById('xmlVariationProductBlock').style.display = "block";
+       }
+    </script>
+@endpush

@@ -1,5 +1,5 @@
 <div class="form-group">
-    <h3>Свойства Товара</h3>
+    <h4 class="mt-3">Свойства Товара</h4>
     <label class="text-secondary my-2" for="xmlPropType">Тип Свойств</label>
     <select type="text"
             id="xmlPropType"
