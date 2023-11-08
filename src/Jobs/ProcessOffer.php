@@ -43,6 +43,10 @@ class ProcessOffer implements ShouldQueue
         $id = ! empty($offer[0]->{base_config()->get("product-import","xml-variation-product-id")}) ?
             $offer[0]->{base_config()->get("product-import","xml-variation-product-id")} : null;
 
+        $ids = explode("#", $id);
+        $prodId = $ids[0];
+        $offerId = ! empty($ids[1]) ? $ids[1] : null;
+
         $countStr = empty($offer[0]->{base_config()->get("product-import","xml-variation-count")}) ?
              null : $offer[0]->{base_config()->get("product-import","xml-variation-count")};
         $count =  ! isset($countStr) ? null : intval($countStr);
@@ -60,6 +64,18 @@ class ProcessOffer implements ShouldQueue
                     base_config()->get("product-import","xml-code") : null;
                 break;
         }
+        switch (base_config()->get("product-import","xml-variation-price-desc-type")){
+            case "offer":
+                $desc = ! empty($offer[0]->{base_config()->get("product-import","xml-variation-price-desc")}) ?
+                     $offer[0]->{base_config()->get("product-import","xml-variation-price-desc")} : null;
+                break;
+            case "etc": default:
+                $desc = ! empty(base_config()->get("product-import","xml-variation-price-desc")) ?
+                    base_config()->get("product-import","xml-variation-price-desc") : null;
+                break;
+            case "price":
+                $desc = "price";
+        }
 
         try {
             $offerPrices = $offer[0]->{base_config()->get("product-import","xml-variation-prices")}->children();
@@ -68,14 +84,16 @@ class ProcessOffer implements ShouldQueue
             $offerPrices = [];
         }
 
-        $desc = null;
+        //$desc = null;
         $price = null;
         $oldPrice = null;
         $sale = 0;
 
         foreach ($offerPrices as $offerPrice) {
-            $desc = ! empty($offerPrice[0]->{base_config()->get("product-import","xml-variation-price-desc")}) ?
-                $offerPrice[0]->{base_config()->get("product-import","xml-variation-price-desc")} : null;
+            if ($desc == "price"){
+                $desc = ! empty($offerPrice[0]->{base_config()->get("product-import","xml-variation-price-desc")}) ?
+                    $offerPrice[0]->{base_config()->get("product-import","xml-variation-price-desc")} : null;
+            }
             $price = ! empty($offerPrice[0]->{base_config()->get("product-import","xml-variation-price")}) ?
                 $offerPrice[0]->{base_config()->get("product-import","xml-variation-price")} : null;
             $oldPrice = ! empty($offerPrice[0]->{base_config()->get("product-import","xml-variation-old-price")}) ?
@@ -87,7 +105,8 @@ class ProcessOffer implements ShouldQueue
         }
 
         $this->offer = (object) [
-            "id" => $id,
+            "prodId" => $prodId,
+            "offerId" => ! empty($offerId) ?  $offerId  : null,
             "title" => $desc,
             "price" => $price,
             "oldPrice" => $oldPrice,
@@ -95,15 +114,13 @@ class ProcessOffer implements ShouldQueue
             "count" => $count,
             "code" => $code,
         ];
-
-        if (empty($this->offer->id) || empty($this->offer->price))  return null;
-
+        if (empty($this->offer->prodId) || empty($this->offer->price))  return null;
         //ищем товар
-        $product = ProductImportParserActions::findProductByUUid($this->offer->id);
+        $product = ProductImportParserActions::findProductByUUid($this->offer->prodId);
         if (empty($product)) return null;
 
         //создать или обновить вариацию
-        $this->createOrUpdateVariation($product);
+        $this->createOrUpdateVariation($product, $offerId);
     }
 
     /**
@@ -112,22 +129,25 @@ class ProcessOffer implements ShouldQueue
      * @param Product $product
      * @return bool|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Relations\HasMany|ProductVariation|null
      */
-    protected function createOrUpdateVariation(Product $product)
+    protected function createOrUpdateVariation(Product $product, $offerId = null)
     {
         $variationData = $this->prepareVariationData($product);
         if (empty($variationData["price"])) return null;
         try {
-            //получаем первую и единственную вариацию из модели
-            $productVariation = $product->variations()->firstOrFail();
-
+            //получаем  единственную вариацию из модели
+            $productVariation = $product->variations();
+            if (! empty($offerId))
+                $productVariation =  $productVariation->where("import_uuid","=",$offerId);
+            $productVariation = $productVariation->firstOrFail();
             $productVariation->update($variationData);
-            return $productVariation;
         }
         catch(\Exception $exception)
         {
             //создаем вариацию для продукта
-            return $product->variations()->create($variationData);
+            $productVariation = $product->variations()->create($variationData);
         }
+
+        return $productVariation;
     }
 
     /**
@@ -148,6 +168,7 @@ class ProcessOffer implements ShouldQueue
             "price" => $price,
             "sale_price" => $this->offer->oldPrice,
             "sale" => $this->offer->sale,
+            "import_uuid" => $this->offer->offerId,
         ];
     }
 }
