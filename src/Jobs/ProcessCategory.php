@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Notabenedev\ProductImport\Facades\ProductImportParserActions;
 use Notabenedev\ProductImport\Helpers\ProductImportParserActionsManager;
+use App\Jobs\Vendor\ProductImport\ProcessCategoryParent;
 
 class ProcessCategory implements ShouldQueue
 {

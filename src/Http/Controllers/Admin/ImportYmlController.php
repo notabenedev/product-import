@@ -5,11 +5,9 @@ namespace Notabenedev\ProductImport\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\ImportYml;
-use App\Jobs\Vendor\ProductImport\ProcessYmlFile;
 use App\YmlFile;
 use Illuminate\Http\RedirectResponse;
 use Notabenedev\ProductImport\Facades\ProductImportParserActions;
-use Notabenedev\ProductImport\Facades\ProductImportProtocolActions;
 
 class ImportYmlController extends Controller
 {
