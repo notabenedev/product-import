@@ -60,7 +60,7 @@ class ProductImportParserActionsManager
 
         $this->ymlFileId = $file->id;
         try {
-            $this->ymlParser = simplexml_load_string(file_get_contents($path));
+            $this->ymlParser = simplexml_load_file($path);
         }
         catch (\Exception $e){
             Log::warning("Невалидный YML: ".$e);
