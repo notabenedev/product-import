@@ -15,7 +15,7 @@
         "ext-libxml": "*",
         "ext-fileinfo": "*",
         "portedcheese/base-settings": "^4.0.3|^5.0",
-        "portedcheese/admin-site-menu": "^1.6",
+        "portedcheese/admin-site-menu": "^1.6|^2.0",
         "portedcheese/category-product": "^1.2.2|^2.0|^3.0"
     },
     "autoload": {
